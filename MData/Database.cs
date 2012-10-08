@@ -26,65 +26,72 @@ namespace MData
             return new Database(() => new SqlConnection(csb.ConnectionString));
         }
 
+		public Reader ExecReader(string text, object args = null, object options = null)
+		{
+			if (string.IsNullOrWhiteSpace(text))
+				throw new ArgumentException("text");
+			var ado = new ADO();
+			ado.Connection = _createConnection();
+			ado.Connection.Open();
+			ado.Command = ado.Connection.CreateCommand();
+			ado.Command.CommandText = text;
+			ado.Command.CommandType = CommandType.StoredProcedure;
+			if (args != null)
+			{
+				var ps = args.GetType().GetProperties();
+				foreach (var p in ps)
+				{
+					if (!p.CanRead)
+						continue;
+					var cmp = ado.Command.CreateParameter();
+					cmp.ParameterName = p.Name;
+					cmp.Value = p.GetValue(args, null) ?? DBNull.Value;
+					ado.Command.Parameters.Add(cmp);
+				}
+			}
+			if (options != null)
+			{
+				var map = options.GetType().GetProperties().ToDictionary(p => p.Name);
+				if (map.ContainsKey("Text"))
+				{
+					ado.Command.CommandType = CommandType.Text;
+				}
+			}
+			ado.Reader = ado.Command.ExecuteReader();
+			return new Reader(ado);
+		}
+
         public ResultSet ExecResultSet(string text, object args = null, object options = null)
         {
-            if (string.IsNullOrWhiteSpace(text))
-                throw new ArgumentException("text");
-            var ado = new ADO();
-            ado.Connection = _createConnection();
-            ado.Connection.Open();
-            ado.Command = ado.Connection.CreateCommand();
-            ado.Command.CommandText = text;
-            if (args != null)
-            {
-                var ps = args.GetType().GetProperties();
-                foreach (var p in ps)
-                {
-                    if (!p.CanRead)
-                        continue;
-                    var cmp = ado.Command.CreateParameter();
-                    cmp.ParameterName = p.Name;
-                    cmp.Value = p.GetValue(args);
-                    ado.Command.Parameters.Add(cmp);
-                }
-            }
-            if (options != null)
-            {
-
-            }
-            ado.Reader = ado.Command.ExecuteReader();
-            return new ResultSet(ado);
+			using (var r = ExecReader(text, args, options))
+				return new ResultSet(r);
         }
 
         public RecordSet ExecRecordSet(string text, object args = null, object options = null)
         {
-            foreach (var b in ExecResultSet(text, args, options))
-                    return b;
-            throw new Exception();
+			using (var r = ExecReader(text, args, options))
+				return new RecordSet(r);
         }
 
         public FieldSet ExecFieldSet(string text, object args = null, object options = null)
-        {
-            using (var a = ExecResultSet(text, args, options))
-                foreach (var b in a)
-                    foreach (var c in b)
-                        return c;
-            throw new Exception();
+		{
+			using (var r = ExecReader(text, args, options))
+			{
+				if (!r.ReadRecord())
+					throw new NoRecordException();
+				return new FieldSet(r);
+			}
         }
 
         public T Exec<T>(string text, object args = null, object options = null)
         {
-            using (var a = ExecResultSet(text, args, options))
-                foreach (var b in a)
-                    foreach (var c in b)
-                        foreach (var d in c)
-                            return (T)d.Value;
-            throw new Exception();
+			var f = ExecFieldSet(text, args, options);
+			return f.Get<T>(0);
         }
 
         public void Exec(string text, object args = null, object options = null)
         {
-            using (ExecResultSet(text, args, options))
+			using (ExecReader(text, args, options))
                 return;
         }
     }

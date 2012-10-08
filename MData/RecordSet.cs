@@ -8,53 +8,24 @@ using System.Threading.Tasks;
 
 namespace MData
 {
-    public sealed class RecordSet : IDisposable, IEnumerable<FieldSet>
+    public sealed class RecordSet : IEnumerable<FieldSet>
     {
-        private readonly List<FieldSet> _fieldSets = new List<FieldSet>();
-        private bool _isFullyCached = false;
-        private readonly ADO ADO;
+        private readonly List<FieldSet> _list = new List<FieldSet>();
 
-        internal RecordSet(ADO ado)
+		internal RecordSet(Reader r)
         {
-            ADO = ado;
-        } 
-
-        public void Dispose()
-        {
-            lock (ADO)
-            {
-                ADO.Dispose();
-                _isFullyCached = true;
-            }
+			while (r.ReadRecord())
+				_list.Add(new FieldSet(r));
         }
+
+		public int Count
+		{
+			get { return _list.Count; }
+		} 
 
         public IEnumerator<FieldSet> GetEnumerator()
         {
-            var fs = default(FieldSet);
-            var index = 0;
-            while (true)
-            {
-                if (_isFullyCached)
-                {
-                    for (; index < _fieldSets.Count; index++)
-                        yield return _fieldSets[index];
-                    yield break;
-                }
-                lock (ADO)
-                {
-                    if (_isFullyCached)
-                        continue;
-                    if (!ADO.Reader.Read())
-                    {
-                        _isFullyCached = true;
-                        yield break;
-                    }
-                    fs = new FieldSet(ADO);
-                    _fieldSets.Add(fs);
-                    yield return fs;
-                    index++;
-                }
-            }
+			return _list.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

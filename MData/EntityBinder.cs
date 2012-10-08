@@ -24,7 +24,7 @@ namespace MData
                 var prop = typeof(T).GetProperty(f.Name);
                 if (prop == null)
                     continue;
-                prop.SetValue(instance, f.Value);
+                prop.SetValue(instance, f.Value, null);
             }
             return instance;
         }
@@ -46,7 +46,7 @@ namespace MData
                     var prop = typeof(T).GetProperty(field.Name);
                     if (prop == null)
                         continue;
-                    prop.SetValue(instance, field.Value);
+					prop.SetValue(instance, field.Value, null);
                 }
                 es.Add(instance);
             }
