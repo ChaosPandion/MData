@@ -2,62 +2,63 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data;
 
 namespace MData
 {
 	public sealed class Reader : IDisposable
 	{
-		private readonly ADO ADO;
+		private readonly IDataReader _reader;
 
-		internal Reader(ADO ado)
+		internal Reader(IDataReader reader)
 		{
-			ADO = ado;
+			_reader = reader;
 		}
 
 		public int FieldCount
 		{
-			get { return ADO.Reader.FieldCount; }
+			get { return _reader.FieldCount; }
 		}
 
 		public bool ReadResult()
 		{
-			return ADO.Reader.NextResult();
+			return _reader.NextResult();
 		}
 
 		public bool ReadRecord()
 		{
-			return ADO.Reader.Read();
+			return _reader.Read();
 		}
 
 		public T ReadField<T>(string name)
 		{
-			return ReadField<T>(ADO.Reader.GetOrdinal(name));
+			return ReadField<T>(_reader.GetOrdinal(name));
 		}
 
 		public T ReadField<T>(int index)
 		{
-			if (ADO.Reader.IsDBNull(index))
+			if (_reader.IsDBNull(index))
 				return default(T);
-			return (T)ADO.Reader.GetValue(index);
+			return (T)_reader.GetValue(index);
 		}
 
 		public string GetFieldName(int index)
 		{
-			return ADO.Reader.GetName(index);
+			return _reader.GetName(index);
 		}
 
 		public IEnumerable<string> GetFieldNames()
 		{
-			for (int i = 0; i < ADO.Reader.FieldCount; i++)
-				yield return ADO.Reader.GetName(i);
+			for (int i = 0; i < _reader.FieldCount; i++)
+				yield return _reader.GetName(i);
 		}
 
 		public Field ReadField(int index)
 		{
-			var name = ADO.Reader.GetName(index);
-			var type = ADO.Reader.GetFieldType(index);
-			var value = ADO.Reader.GetValue(index);
-			if (ADO.Reader.IsDBNull(index))
+			var name = _reader.GetName(index);
+			var type = _reader.GetFieldType(index);
+			var value = _reader.GetValue(index);
+			if (_reader.IsDBNull(index))
 			{
 				value = null;
 				if (type.IsValueType)
@@ -70,7 +71,7 @@ namespace MData
 
 		public void Dispose()
 		{
-			ADO.Dispose();
+			_reader.Dispose();
 		}
 	}
 }
