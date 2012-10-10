@@ -12,7 +12,7 @@ namespace MData.Test
 			var db = Database.GetSqlServerInstance("Data Source=PHLDEVCMSSQL01;Initial Catalog=Cms;User Id=CmsApplication;Password=cms;");
 			for (int i = 0; i < 100000; i++)
 			{
-				db.ExecRecordSet("ssam.ActivityList", new { CaseId = 1234 });
+                var x = db.Context.ssam.ActivityList(CaseId: 1234);
 			}
 		}
 	}

@@ -43,11 +43,16 @@
     <Compile Include="Database.cs" />
     <Compile Include="Field.cs" />
     <Compile Include="FieldSet.cs" />
+    <Compile Include="Providers\IProvider.cs" />
     <Compile Include="MDataException.cs" />
+    <Compile Include="ObjectNameContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Providers\SqlServerProvider.cs" />
     <Compile Include="Reader.cs" />
     <Compile Include="RecordSet.cs" />
+    <Compile Include="Reflection.cs" />
     <Compile Include="ResultSet.cs" />
+    <Compile Include="Validation.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

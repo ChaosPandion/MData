@@ -12,29 +12,41 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using System.Collections;
+using MData.Providers;
 
 namespace MData
 {
 	public sealed class Database
 	{
-		private static readonly ConcurrentDictionary<Type, Action<object, Action<string, object>>> _argsTypeMap = new ConcurrentDictionary<Type, Action<object, Action<string, object>>>();
-		private static readonly Regex _spRegex = new Regex(@"^\s*(?:\[?[a-zA-Z][a-zA-Z0-9]*\]?\.)?\[?[a-zA-Z][a-zA-Z0-9]*\]?\s*$", RegexOptions.Compiled);
-		private readonly Func<string, object, IDataReader> _createReader;
+        private readonly IProvider _provider;
+        private readonly ObjectNameContext _context;
 
 
-        internal Database(Func<string, object, IDataReader> createReader)
+        internal Database(IProvider provider)
         {
-			if (createReader == null)
-				throw new ArgumentNullException("createReader");
-			_createReader = createReader;
+            if (provider == null)
+                throw new ArgumentNullException("provider");
+            _provider = provider;
+            _context = new ObjectNameContext(this);
         }
-		
+
+
+        public dynamic Context
+        {
+            get { return _context; }
+        }
+
+        internal IProvider Provider
+        {
+            get { return _provider; }
+        }
+
 
 		public Reader ExecReader(string text, object args = null)
 		{
 			if (text == null)
 				throw new ArgumentNullException("text");
-			return new Reader(_createReader(text, args));
+			return new Reader(_provider.CreateCommand(text, args).ExecuteReader(CommandBehavior.CloseConnection));
 		}
 
 		public ResultSet ExecResultSet(string text, object args = null)
@@ -117,92 +129,9 @@ namespace MData
 		
 		public static Database GetSqlServerInstance(string connectionString, int timeout = 0)
 		{
-			var csb = new SqlConnectionStringBuilder(connectionString);
-			return new Database((text, args) =>
-			{
-				var cn = new SqlConnection(csb.ConnectionString);
-				var cm = cn.CreateCommand();
-				if (timeout > 0)
-					cm.CommandTimeout = timeout;
-				cm.CommandText = text;
-				cm.CommandType = _spRegex.IsMatch(text) ? CommandType.StoredProcedure : CommandType.Text;
-				if (args != null)
-				{
-					ReadArgs(args, (key, val) =>
-					{
-						var cmp = cm.CreateParameter();
-						cmp.ParameterName = key;
-						cmp.Value = val;
-						cm.Parameters.Add(cmp);
-					});
-				}
-				cn.Open();
-				return cm.ExecuteReader(CommandBehavior.CloseConnection);
-			});
+            return new Database(new SqlServerProvider(connectionString, timeout));
 		}
 
-		private static void ReadArgs(object instance, Action<string, object> send)
-		{
-			if (instance == null)
-				return;
-			if (send == null)
-				throw new ArgumentNullException("send");
-			var type = instance.GetType();
-			Action<object, Action<string, object>> result;
-			if (_argsTypeMap.TryGetValue(type, out result))
-			{
-				result(instance, send);
-				return;
-			}
-			lock (_argsTypeMap)
-			{
-				if (_argsTypeMap.TryGetValue(type, out result))
-				{
-					result(instance, send);
-					return;
-				}
-
-				if (instance is IDictionary)
-				{
-					result = (i, s) =>
-					{
-						var dict = i as IDictionary;
-						foreach (KeyValuePair<string, object> kv in dict)
-							s(kv.Key, kv.Value);
-					};
-				}
-				else if (instance is IEnumerable)
-				{
-					result = (i, s) =>
-					{
-						var seq = i as IEnumerable;
-						foreach (object v in seq)
-							s(null, v);
-					};
-				}
-				else
-				{
-					var dbnull = Expression.Constant(DBNull.Value);
-					var objArg = Expression.Parameter(typeof(object), "arg");
-					var sendArg = Expression.Parameter(typeof(Action<string, object>), "send");
-					var exps = new List<Expression>();
-					var props = type.GetProperties();
-					foreach (var prop in props)
-					{
-						if (!prop.CanRead)
-							continue;
-						var pname = Expression.Constant(prop.Name);
-						var paccess = Expression.Property(Expression.Convert(objArg, type), prop);
-						var pval = Expression.Coalesce(Expression.Convert(paccess, typeof(object)), dbnull);
-						exps.Add(Expression.Invoke(sendArg, pname, pval));
-					}
-					var body = Expression.Block(exps);
-					var lambda = Expression.Lambda<Action<object, Action<string, object>>>(body, objArg, sendArg);
-					result = lambda.Compile();
-				}
-				_argsTypeMap.TryAdd(type, result);
-				result(instance, send);
-			}
-		}
+		
     }
 }
