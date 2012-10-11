@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,7 +46,8 @@
     <Compile Include="FieldSet.cs" />
     <Compile Include="Providers\IProvider.cs" />
     <Compile Include="MDataException.cs" />
-    <Compile Include="ObjectNameContext.cs" />
+    <Compile Include="Providers\SqlServerCompactProvider.cs" />
+    <Compile Include="QueryContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\SqlServerProvider.cs" />
     <Compile Include="Reader.cs" />

@@ -7,26 +7,33 @@ using System.Text;
 
 namespace MData
 {
-    public sealed class ObjectNameContext : DynamicObject
+    public sealed class QueryContext : DynamicObject
     {
         private readonly Database _db;
         private readonly string _name;
+        private readonly IDictionary<string, object> _args;
 
-        public ObjectNameContext(Database db, string name = null)
+        internal QueryContext(Database db, string name = null, IDictionary<string, object> args = null)
         {
             _db = db;
             _name = name ?? "";
+            _args = args;
         }
 
-        public ObjectNameContext EnterChildContext(string name)
+        public QueryContext Configure(int timeout = 0)
+        {
+            return new QueryContext(_db, _name, _args);
+        }
+
+        internal QueryContext EnterChildContext(string name)
         {
             name.ThrowIfNullOrWhiteSpace("name");
-            return new ObjectNameContext(_db, _db.Provider.CombineObjectName(_name, name));
+            return new QueryContext(_db, _db.Provider.CombineObjectName(_name, name));
         }
 
-        public Reader Exec(string name, object args = null)
+        public Reader Exec()
         {
-            return _db.ExecReader(name, args);
+            return _db.ExecReader(_name, _args);
         }
 
         public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)
@@ -42,6 +49,8 @@ namespace MData
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
+            if (!_db.Provider.SupportsChainedContext)
+                throw new Exception();
             result = EnterChildContext(binder.Name);
             return true;
         }
@@ -50,25 +59,29 @@ namespace MData
         {
             if (_name.Length == 0)
                 throw new Exception();
-            result = Exec(_name, binder.CallInfo.ArgumentNames, args);
+            if (_args != null)
+                throw new Exception();
+            result = new QueryContext(_db, _name, Args(_name, binder.CallInfo.ArgumentNames, args));
             return true;
         }
-
+        
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            result = Exec(_db.Provider.CombineObjectName(_name, binder.Name), binder.CallInfo.ArgumentNames, args);
+            if (!_db.Provider.SupportsChainedContext)
+                throw new Exception();
+            result = new QueryContext(_db, _db.Provider.CombineObjectName(_name, binder.Name), Args(_name, binder.CallInfo.ArgumentNames, args));
             return true;
         }
 
-        private object Exec(string name, ReadOnlyCollection<string> names, object[] args)
+        private IDictionary<string, object> Args(string name, ReadOnlyCollection<string> names, object[] args)
         {
-            var range = Enumerable.Range(0, args.Length);
             var argMap =
                 Enumerable.Range(0, args.Length).ToDictionary(
                     i => _db.Provider.FormatParameterName(i < names.Count ? names[i] : "arg" + i),
                     i => args[i]);
-            var text = _db.Provider.FormatProcedureCall(name, args.Length, i => i < names.Count ? names[i] : null);
-            return _db.ExecReader(text, argMap);
+            return argMap;
+            //var argMap = _db.Provider.FormatProcedureCall(name, args.Length, i => i < names.Count ? names[i] : null);
+            //return _db.ExecReader(text, argMap);
         }
     }
 }

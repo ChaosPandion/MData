@@ -9,11 +9,8 @@ namespace MData.Test
 	{
 		static void Main(string[] args)
 		{
-			var db = Database.GetSqlServerInstance("Data Source=PHLDEVCMSSQL01;Initial Catalog=Cms;User Id=CmsApplication;Password=cms;");
-			for (int i = 0; i < 100000; i++)
-			{
-                var x = db.Context.ssam.ActivityList(CaseId: 1234);
-			}
+            var db = Database.GetSqlServerCompactInstance(@"Data Source=C:\Users\Matthew\Projects\MData\MData.Test\Databases\PlayingCardsDatabase.sdf");
+            var x = db.ExecReader(ctx => ctx["tests"]());
 		}
 	}
 }

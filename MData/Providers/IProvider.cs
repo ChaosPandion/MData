@@ -8,6 +8,8 @@ namespace MData.Providers
 {
     interface IProvider
     {
+        bool SupportsChainedContext { get; }
+
         IDbCommand CreateCommand(string text, object args = null);
 
         object GetReaderValue(IDataReader reader, int index);

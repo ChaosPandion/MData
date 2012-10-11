@@ -16,10 +16,14 @@ using MData.Providers;
 
 namespace MData
 {
+    public delegate QueryContext ContextSelector(dynamic ctx);
+
+    public delegate QueryContext ContextConfigure(QueryContext ctx); 
+
 	public sealed class Database
 	{
         private readonly IProvider _provider;
-        private readonly ObjectNameContext _context;
+        private readonly QueryContext _context;
 
 
         internal Database(IProvider provider)
@@ -27,18 +31,28 @@ namespace MData
             if (provider == null)
                 throw new ArgumentNullException("provider");
             _provider = provider;
-            _context = new ObjectNameContext(this);
+            _context = new QueryContext(this);
         }
 
-
-        public dynamic Context
-        {
-            get { return _context; }
-        }
-
+        
         internal IProvider Provider
         {
             get { return _provider; }
+        }
+
+        public Reader ExecReader(ContextSelector selector, ContextConfigure configure = null)
+        {
+            selector.ThrowIfNull("selector");
+            var ctx = selector(_context);
+            if (ctx == null)
+                throw new Exception();
+            if (configure != null)
+            {
+                ctx = configure(ctx);
+                if (ctx == null)
+                    throw new Exception();
+            }
+            return ctx.Exec();
         }
 
 
@@ -132,6 +146,10 @@ namespace MData
             return new Database(new SqlServerProvider(connectionString, timeout));
 		}
 
+        public static Database GetSqlServerCompactInstance(string connectionString)
+        {
+            return new Database(new SqlServerCompactProvider(connectionString));
+        }
 		
     }
 }

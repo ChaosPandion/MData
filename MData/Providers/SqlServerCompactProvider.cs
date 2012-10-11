@@ -1,42 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Data.SqlServerCe;
 
 namespace MData.Providers
 {
-    class SqlServerProvider : IProvider
+    class SqlServerCompactProvider : IProvider
     {
-        private static readonly Regex _spRegex = new Regex(@"^\s*(?:\[?[a-zA-Z][a-zA-Z0-9]*\]?\.)?\[?[a-zA-Z][a-zA-Z0-9]*\]?\s*$", RegexOptions.Compiled);
-
         private readonly string _connectionString;
-        private readonly int _timeout;
 
-        public SqlServerProvider(string connectionString, int timeout)
+        public SqlServerCompactProvider(string connectionString)
         {
             _connectionString = connectionString;
-            _timeout = timeout;
         }
-
 
         public bool SupportsChainedContext
         {
-            get { return true; }
+            get { return false; }
         }
 
         public IDbCommand CreateCommand(string text, object args = null)
         {
-            var cn = new SqlConnection(_connectionString);
+            var cn = new SqlCeConnection(_connectionString);
             var cm = cn.CreateCommand();
-            if (_timeout > 0)
-                cm.CommandTimeout = _timeout;
             cm.CommandText = text;
-            cm.CommandType = _spRegex.IsMatch(text) ? 
-                CommandType.StoredProcedure : 
-                CommandType.Text;
+            cm.CommandType = CommandType.Text;
             if (args != null)
             {
                 Reflection.ForEachProperty(args, (key, val) =>
@@ -53,30 +43,24 @@ namespace MData.Providers
 
         public object GetReaderValue(IDataReader reader, int index)
         {
-            if (reader.IsDBNull(index))
-            {
-                return null;
-            }
-            return reader.GetValue(index);
+            throw new NotImplementedException();
         }
 
         public string FormatParameterName(string name)
         {
-            return "@" + (name ?? "").Trim();
+            throw new NotImplementedException();
         }
 
         public string FormatProcedureCall(string name, int argCount, Func<int, string> getArgName)
         {
-            return "Execute " + name + " " + string.Join(",", Enumerable.Range(0, argCount).Select(getArgName).Select((n, i) => "@" + (n ?? "arg" + i) + (n != null ? "=@" + n : "")));
+            throw new NotImplementedException();
         }
 
         public string CombineObjectName(string left, string right)
         {
-            left = left ?? "";
-            right = right ?? "";
-            if (string.IsNullOrWhiteSpace(left))
-                return right;
-            return left + "." + right;
+            if (!string.IsNullOrEmpty(left))
+                throw new Exception();
+            return right;
         }
     }
 }
