@@ -4,16 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MData
+namespace MData.Foundation
 {
-    public sealed class Field
+    public sealed class Field : IField
     {
         private readonly string _name;
         private readonly Type _type;
         private readonly object _value;
 
-        internal Field(string name, Type type, object value)
+        public Field(string name, Type type, object value)
         {
+            name.ThrowIfNull("name");
+            type.ThrowIfNull("type");
+            if (value != null && value.GetType() != type)
+                throw new Exception();
             _name = name;
             _type = type;
             _value = value;

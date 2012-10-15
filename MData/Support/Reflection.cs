@@ -74,6 +74,8 @@ namespace MData
                 _argsTypeMap.TryAdd(type, result);
                 result(instance, send);
             }
-        }                        
+        }    
+        
+            
     }
 }
