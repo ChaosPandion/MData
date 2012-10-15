@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MData</RootNamespace>
     <AssemblyName>MData</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -34,15 +34,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.1\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,31 +43,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Exceptions\MissingFieldException.cs" />
-    <Compile Include="Exceptions\NoRecordException.cs" />
-    <Compile Include="Foundation\Source.cs" />
+    <Compile Include="Foundation\Database.cs" />
     <Compile Include="Foundation\Field.cs" />
     <Compile Include="Foundation\Record.cs" />
-    <Compile Include="Sources.cs" />
+    <Compile Include="Databases.cs" />
+    <Compile Include="Foundation\RecordSet.cs" />
+    <Compile Include="Foundation\ResultSet.cs" />
     <Compile Include="IField.cs" />
     <Compile Include="IReader.cs" />
     <Compile Include="IRecord.cs" />
-    <Compile Include="IRequestBuilder.cs" />
-    <Compile Include="Exceptions\MException.cs" />
-    <Compile Include="ISource.cs" />
+    <Compile Include="ICommandBuilder.cs" />
+    <Compile Include="IDatabase.cs" />
+    <Compile Include="IRecordSet.cs" />
+    <Compile Include="IResultSet.cs" />
     <Compile Include="Providers\SqlServerCompact\SqlServerCompactRequestBuilder.cs" />
     <Compile Include="Providers\SqlServerCompact\SqlServerCompactSource.cs" />
-    <Compile Include="Foundation\RequestBuilder.cs" />
+    <Compile Include="Foundation\CommandBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\SqlServer\SqlServerRequestBuilder.cs" />
     <Compile Include="Providers\SqlServer\SqlServerSource.cs" />
     <Compile Include="Foundation\Reader.cs" />
-    <Compile Include="Support\Option.cs" />
+    <Compile Include="Option.cs" />
     <Compile Include="Support\Reflection.cs" />
     <Compile Include="Support\Validation.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

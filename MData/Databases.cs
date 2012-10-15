@@ -7,16 +7,16 @@ using System.Text;
 
 namespace MData
 {
-    public static class Sources
+    public static class Databases
     {
-        public static ISource GetSqlServerSource(string connectionString)
+        public static IDatabase GetSqlServerDatabase(string connectionString)
         {
             return new SqlServerSource(connectionString);
         }
 
-        public static ISource GetSqlServerCompactSource(string connectionString)
-        {
-            return new SqlServerCompactSource(connectionString);
-        }
+		//public static ISource GetSqlServerCompactSource(string connectionString)
+		//{
+		//    return new SqlServerCompactSource(connectionString);
+		//}
     }
 }

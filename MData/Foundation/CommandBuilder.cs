@@ -8,71 +8,78 @@ using System.Data.Common;
 using System.Dynamic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
+using MData.Support;
 
 namespace MData.Foundation
 {
-    public abstract class RequestBuilder<TConnection> : DynamicObject, IRequestBuilder
+    public abstract class CommandBuilder<TConnection> : DynamicObject, ICommandBuilder
         where TConnection : IDbConnection, new()
     {
         private readonly ConcurrentDictionary<string, object> _commandParameters = new ConcurrentDictionary<string, object>();
-        private readonly Source<TConnection> _source;
+        private readonly Database<TConnection> _source;
         private string _commandText;
         private CommandType _commandType;
         private int _commandTimeout;
 
-        protected RequestBuilder(Source<TConnection> source)
+        protected CommandBuilder(Database<TConnection> source)
         {
             _source = source;
         }
+
+		public dynamic Procedures
+		{
+			get { return this; }
+		}
         
-        public IRequestBuilder SetText(string value)
+        public ICommandBuilder SetText(string value)
         {
             _commandText = value;
             _commandType = CommandType.Text;
             return this;
         }
 
-        public IRequestBuilder SetProcedure(string value)
+        public ICommandBuilder SetProcedure(string value)
         {
             _commandText = value;
             _commandType = CommandType.StoredProcedure;
             return this;
         }
 
-        public IRequestBuilder SetTimeout(int value)
+        public ICommandBuilder SetTimeout(int value)
         {
             _commandTimeout = value;
             return this;
         }
 
-        public IRequestBuilder AddArgument<T>(string name, T value)
+        public ICommandBuilder AddArgument<T>(string name, T value)
         {
             _commandParameters.TryAdd(name, value);
             return this;
         }
 
-        public IRequestBuilder AddArguments(IDictionary<string, object> args)
+        public ICommandBuilder AddArguments(IDictionary<string, object> args)
         {
             foreach (var kv in args)
                 _commandParameters.TryAdd(kv.Key, kv.Value);
             return this;
         }
 
-        public IRequestBuilder AddArguments<T>(T value)
+        public ICommandBuilder AddArguments<T>(T value)
         {
             Reflection.ForEachProperty(value, (k, v) => _commandParameters.TryAdd(k, v));
             return this;
-        }
+		}
 
-        public virtual void Request()
+        public virtual void Execute()
         {
             using (var cm = CreateCommand())
                 cm.ExecuteNonQuery();
         }
 
-        public virtual T Request<T>()
+		public virtual T Execute<T>()
         {
-            using (var reader = RequestReader())
+			using (var reader = ExecuteReader())
             {
                 if (!reader.ReadRecord())
                     throw new Exception();
@@ -80,9 +87,9 @@ namespace MData.Foundation
             }
         }
 
-        public virtual IRecord RequestRecord()
+		public virtual IRecord ExecuteRecord()
         {
-            using (var reader = RequestReader())
+			using (var reader = ExecuteReader())
             {
                 if (!reader.ReadRecord())
                     throw new Exception();
@@ -90,34 +97,34 @@ namespace MData.Foundation
             }
         }
 
-        public virtual IList<IRecord> RequestRecords()
+		public virtual IRecordSet ExecuteRecords()
         {
-            using (var reader = RequestReader())
+			using (var reader = ExecuteReader())
             {
                 var records = new List<IRecord>();
                 while (reader.ReadRecord())
                     records.Add(new Record(reader.GetFields()));
-                return records.AsReadOnly();
+				return new RecordSet(records);
             }
         }
 
-        public virtual IList<IList<IRecord>> RequestResults()
+		public virtual IResultSet ExecuteResults()
         {
-            using (var reader = RequestReader())
+			using (var reader = ExecuteReader())
             {
-                var results = new List<IList<IRecord>>();
+				var results = new List<IRecordSet>();
                 do
                 {
                     var records = new List<IRecord>();
                     while (reader.ReadRecord())
                         records.Add(new Record(reader.GetFields()));
-                    results.Add((IList<IRecord>)records.AsReadOnly());
+                    results.Add(new RecordSet(records));
                 } while (reader.ReadResult());
-                return results.AsReadOnly();
+				return new ResultSet(results);
             }
         }
 
-        public virtual IReader RequestReader()
+		public virtual IReader ExecuteReader()
         {
             return new Reader(CreateCommand().ExecuteReader(CommandBehavior.CloseConnection));
         }
@@ -138,11 +145,12 @@ namespace MData.Foundation
                 var cmp = cm.CreateParameter();
                 cmp.ParameterName = arg.Key;
                 cmp.Value = arg.Value ?? DBNull.Value;
-                cm.Parameters.Add(arg);
+                cm.Parameters.Add(cmp);
             }
             cn.Open();
             return cm;
         }
+
 
         public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)
         {
@@ -153,7 +161,6 @@ namespace MData.Foundation
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-
             SetProcedure(_commandText != null ? _commandText + "." + binder.Name : binder.Name);
             result = this;
             return true;
@@ -179,5 +186,5 @@ namespace MData.Foundation
             for (int i = 0; i < args.Length; i++)
                 AddArgument(i < names.Count ? names[i] : "arg" + i, args[i]);
         }
-    }
+	}
 }

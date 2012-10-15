@@ -9,7 +9,7 @@ using System.Data;
 
 namespace MData.Providers.SqlServer
 {
-    public sealed class SqlServerRequestBuilder : RequestBuilder<SqlConnection>
+    public sealed class SqlServerRequestBuilder : CommandBuilder<SqlConnection>
     {
         public SqlServerRequestBuilder(SqlServerSource source)
             : base(source)

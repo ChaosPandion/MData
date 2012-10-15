@@ -5,16 +5,16 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data.SqlServerCe;
+//using System.Data.SqlServerCe;
 
 namespace MData.Providers.SqlServerCompact
 {
-    public sealed class SqlServerCompactRequestBuilder : RequestBuilder<SqlCeConnection>
-    {
-        public SqlServerCompactRequestBuilder(SqlServerCompactSource source)
-            : base(source)
-        {
+	//public sealed class SqlServerCompactRequestBuilder : RequestBuilder<SqlCeConnection>
+	//{
+	//    public SqlServerCompactRequestBuilder(SqlServerCompactSource source)
+	//        : base(source)
+	//    {
 
-        }
-    }
+	//    }
+	//}
 }

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace MData
+namespace MData.Support
 {
     static class Reflection
     {

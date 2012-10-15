@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MData
 {
-    public interface IField
+	public interface IField : IEquatable<IField>
     {
         string Name { get; }
         Type Type { get; }

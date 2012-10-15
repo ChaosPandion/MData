@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace MData.Providers.SqlServer
 {
-    public sealed class SqlServerSource : Source<SqlConnection>
+    public sealed class SqlServerSource : Database<SqlConnection>
     {
         public SqlServerSource(string connectionString)
             : base(connectionString)
@@ -17,7 +17,7 @@ namespace MData.Providers.SqlServer
 
         }
 
-        public override IRequestBuilder CreateRequestBuilder()
+        public override ICommandBuilder CreateCommandBuilder()
         {
             return new SqlServerRequestBuilder(this);
         }

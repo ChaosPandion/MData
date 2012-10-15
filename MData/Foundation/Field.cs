@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MData.Support;
 
 namespace MData.Foundation
 {
@@ -37,5 +38,32 @@ namespace MData.Foundation
         {
             get { return _value; }
         }
-    }
+
+		public override bool Equals(object obj)
+		{
+			return Equals(obj as IField);
+		}
+
+		public bool Equals(IField other)
+		{
+			return other != null 
+				&& this.Name == other.Name 
+				&& this.Type == other.Type 
+				&& object.Equals(this.Value, other.Value);
+		}
+
+		public override int GetHashCode()
+		{
+			int hash = 17;
+			hash = hash * 31 + _name.GetHashCode();
+			hash = hash * 31 + _type.GetHashCode();
+			hash = hash * 31 + (_value != null ? _value.GetHashCode() : 0);
+			return hash;
+		}
+
+		public override string ToString()
+		{
+			return string.Format("{0}({1})", Name, Type);
+		}
+	}
 }
