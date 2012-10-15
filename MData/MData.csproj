@@ -63,7 +63,9 @@
     <Compile Include="Providers\SqlServer\SqlServerRequestBuilder.cs" />
     <Compile Include="Providers\SqlServer\SqlServerSource.cs" />
     <Compile Include="Foundation\Reader.cs" />
-    <Compile Include="Option.cs" />
+    <Compile Include="Support\Option.cs" />
+    <Compile Include="Support\RecordBinder.cs" />
+    <Compile Include="Support\RecordSetBinder.cs" />
     <Compile Include="Support\Reflection.cs" />
     <Compile Include="Support\Validation.cs" />
   </ItemGroup>

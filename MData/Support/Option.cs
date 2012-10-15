@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MData
+namespace MData.Support
 {
 	public static class Option
 	{

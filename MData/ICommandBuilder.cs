@@ -32,6 +32,18 @@ namespace MData
 
 		IResultSet ExecuteResults();
 
-		IReader ExecuteReader();    
+		IReader ExecuteReader();
+
+		T ExecuteEntity<T>()
+			where T : new();
+
+		T ExecuteEntity<T>(T entity);
+
+		T ExecuteEntity<T>(Func<T> createInstance);
+
+		IEnumerable<T> ExecuteEntityCollection<T>()
+			where T : new();
+
+		IEnumerable<T> ExecuteEntityCollection<T>(Func<T> createInstance);
     }
 }

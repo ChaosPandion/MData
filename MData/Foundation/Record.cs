@@ -46,21 +46,6 @@ namespace MData.Foundation
 			return (T)field.Value;
 		}
 
-		public Option<T> TryGetValue<T>(int index)
-		{
-			if (index < 0 || index >= _list.Count)
-				return Option.None<T>();
-			return Option.Some((T)_list[index].Value);
-		}
-
-		public Option<T> TryGetValue<T>(string name)
-		{
-			IField field;
-			if (!_map.TryGetValue(name, out field))
-				return Option.None<T>();
-			return Option.Some((T)field.Value);
-		}
-
 		public IField GetField(int index)
 		{
 			if (index < 0 || index >= _list.Count)
@@ -74,21 +59,6 @@ namespace MData.Foundation
 			if (!_map.TryGetValue(name, out field))
 				throw new Exception();
 			return field;
-		}
-
-		public Option<IField> TryGetField(int index)
-		{
-			if (index < 0 || index >= _list.Count)
-				return Option.None<IField>();
-			return Option.Some(_list[index]);
-		}
-
-		public Option<IField> TryGetField(string name)
-		{
-			IField field;
-			if (!_map.TryGetValue(name, out field))
-				return Option.None<IField>();
-			return Option.Some(field);
 		}
 
         public IEnumerator<IField> GetEnumerator()
