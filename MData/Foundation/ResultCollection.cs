@@ -6,9 +6,9 @@ using System.Collections.ObjectModel;
 
 namespace MData.Foundation
 {
-	public class Results : ReadOnlyCollection<IResult>, IResultCollection
+	public class ResultCollection : ReadOnlyCollection<IResult>, IResultCollection
 	{
-		public Results(IList<IResult> records)
+		public ResultCollection(IList<IResult> records)
 			: base(records)
 		{
 

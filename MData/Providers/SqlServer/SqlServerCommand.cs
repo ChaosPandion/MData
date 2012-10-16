@@ -9,9 +9,9 @@ using System.Data;
 
 namespace MData.Providers.SqlServer
 {
-    public sealed class SqlServerRequestBuilder : CommandBuilder<SqlConnection>
+    public sealed class SqlServerCommand : Command<SqlConnection>
     {
-        public SqlServerRequestBuilder(SqlServerSource source)
+        public SqlServerCommand(SqlServerDatabase source)
             : base(source)
         {
 

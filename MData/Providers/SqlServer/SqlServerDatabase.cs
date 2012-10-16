@@ -9,17 +9,17 @@ using System.Text.RegularExpressions;
 
 namespace MData.Providers.SqlServer
 {
-    public sealed class SqlServerSource : Database<SqlConnection>
+    public sealed class SqlServerDatabase : Database<SqlConnection>
     {
-        public SqlServerSource(string connectionString)
+        public SqlServerDatabase(string connectionString)
             : base(connectionString)
         {
 
         }
 
-        public override ICommandBuilder CreateCommandBuilder()
+        protected override ICommand CreateCommandBuilder()
         {
-            return new SqlServerRequestBuilder(this);
+            return new SqlServerCommand(this);
         }
     }
 }

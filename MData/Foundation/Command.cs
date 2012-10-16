@@ -13,18 +13,18 @@ using MData.Support;
 
 namespace MData.Foundation
 {
-    public abstract class CommandBuilder<TConnection> : DynamicObject, ICommandBuilder
+    public abstract class Command<TConnection> : DynamicObject, ICommand
         where TConnection : IDbConnection, new()
     {
         private readonly ConcurrentDictionary<string, object> _commandParameters = new ConcurrentDictionary<string, object>();
-        private readonly Database<TConnection> _source;
+        private readonly Database<TConnection> _db;
         private string _commandText;
         private CommandType _commandType;
         private int _commandTimeout = -1;
 
-        protected CommandBuilder(Database<TConnection> source)
+        protected Command(Database<TConnection> db)
         {
-            _source = source;
+            _db = db;
         }
 
 		public dynamic Procedures
@@ -32,40 +32,40 @@ namespace MData.Foundation
 			get { return this; }
 		}
         
-        public ICommandBuilder SetText(string value)
+        public ICommand SetText(string value)
         {
             _commandText = value;
             _commandType = CommandType.Text;
             return this;
         }
 
-        public ICommandBuilder SetProcedure(string value)
+        public ICommand SetProcedure(string value)
         {
             _commandText = value;
             _commandType = CommandType.StoredProcedure;
             return this;
         }
 
-        public ICommandBuilder SetTimeout(int value)
+        public ICommand SetTimeout(int value)
         {
             _commandTimeout = value;
             return this;
         }
 
-        public ICommandBuilder AddArgument<T>(string name, T value)
+        public ICommand AddArgument<T>(string name, T value)
         {
             _commandParameters.TryAdd(name, value);
             return this;
         }
 
-        public ICommandBuilder AddArguments(IDictionary<string, object> args)
+        public ICommand AddArguments(IDictionary<string, object> args)
         {
             foreach (var kv in args)
                 _commandParameters.TryAdd(kv.Key, kv.Value);
             return this;
         }
 
-        public ICommandBuilder AddArguments<T>(T value)
+        public ICommand AddArguments<T>(T value)
         {
             Reflection.ForEachProperty(value, (k, v) => _commandParameters.TryAdd(k, v));
             return this;
@@ -104,7 +104,7 @@ namespace MData.Foundation
                 var records = new List<IRecord>();
                 while (reader.ReadRecord())
                     records.Add(new Record(reader.GetFields()));
-				return new RecordSet(records);
+				return new Result(records);
             }
         }
 
@@ -118,9 +118,9 @@ namespace MData.Foundation
                     var records = new List<IRecord>();
                     while (reader.ReadRecord())
                         records.Add(new Record(reader.GetFields()));
-                    results.Add(new RecordSet(records));
+                    results.Add(new Result(records));
                 } while (reader.ReadResult());
-				return new Results(results);
+				return new ResultCollection(results);
             }
         }
 
@@ -161,7 +161,7 @@ namespace MData.Foundation
         protected virtual IDbCommand CreateCommand()
         {
             var cn = new TConnection();
-            cn.ConnectionString = _source.ConnectionString;
+            cn.ConnectionString = _db.ConnectionString;
             var cm = cn.CreateCommand();
             cm.CommandText = _commandText;
             cm.CommandType = _commandType;

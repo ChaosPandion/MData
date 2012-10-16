@@ -11,7 +11,7 @@ namespace MData
     {
         public static IDatabase GetSqlServerDatabase(string connectionString)
         {
-            return new SqlServerSource(connectionString);
+            return new SqlServerDatabase(connectionString);
         }
 
 		//public static ISource GetSqlServerCompactSource(string connectionString)

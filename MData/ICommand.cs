@@ -6,21 +6,21 @@ using System.Text;
 
 namespace MData
 {
-    public interface ICommandBuilder
+    public interface ICommand
     {
 		dynamic Procedures { get; }
 
-        ICommandBuilder SetText(string value);
+        ICommand SetText(string value);
 
-        ICommandBuilder SetProcedure(string value);
+        ICommand SetProcedure(string value);
 
-        ICommandBuilder SetTimeout(int value);
+        ICommand SetTimeout(int value);
 
-        ICommandBuilder AddArgument<T>(string name, T value);
+        ICommand AddArgument<T>(string name, T value);
 
-        ICommandBuilder AddArguments(IDictionary<string, object> args);
+        ICommand AddArguments(IDictionary<string, object> args);
 
-		ICommandBuilder AddArguments<T>(T value);
+		ICommand AddArguments<T>(T value);
 
 		void Execute();
 

@@ -32,7 +32,7 @@ namespace MData.Foundation
             get { return _connectionString; }
         }
 
-        public ICommandBuilder BuildCommand(Func<ICommandBuilder, ICommandBuilder> configure)
+        public ICommand BuildCommand(Func<ICommand, ICommand> configure)
         {
 			configure.ThrowIfNull("configure");
             var cb = CreateCommandBuilder();
@@ -44,6 +44,6 @@ namespace MData.Foundation
 			return cb;
         }
 
-        public abstract ICommandBuilder CreateCommandBuilder();
+        protected abstract ICommand CreateCommandBuilder();
     }
 }
