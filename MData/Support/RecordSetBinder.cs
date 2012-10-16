@@ -8,16 +8,16 @@ namespace MData.Support
 {
 	static class RecordSetBinder<T>
 	{
-		private static readonly Func<IResult, Func<T>, IEnumerable<T>> _binder = CreateBinder();
+		private static readonly Func<IRecordSet, Func<T>, IEnumerable<T>> _binder = CreateBinder();
 
-		public static IEnumerable<T> Bind(IResult recordSet, Func<T> createInstance)
+		public static IEnumerable<T> Bind(IRecordSet recordSet, Func<T> createInstance)
 		{
 			recordSet.ThrowIfNull("recordSet");
 			createInstance.ThrowIfNull("createInstance");
 			return _binder(recordSet, createInstance);
 		}
 
-		private static Func<IResult, Func<T>, IEnumerable<T>> CreateBinder()
+		private static Func<IRecordSet, Func<T>, IEnumerable<T>> CreateBinder()
 		{
 			return (recordSet, createInstance) =>
 			{

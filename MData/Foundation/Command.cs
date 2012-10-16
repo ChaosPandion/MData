@@ -97,30 +97,30 @@ namespace MData.Foundation
             }
         }
 
-        public virtual IResult ExecuteResult()
+        public virtual IRecordSet ExecuteRecords()
         {
 			using (var reader = ExecuteReader())
             {
                 var records = new List<IRecord>();
                 while (reader.ReadRecord())
                     records.Add(new Record(reader.GetFields()));
-				return new Result(records);
+				return new RecordSet(records);
             }
         }
 
-        public virtual IResultCollection ExecuteResults()
+        public virtual IResultSet ExecuteResults()
         {
 			using (var reader = ExecuteReader())
             {
-				var results = new List<IResult>();
+				var results = new List<IRecordSet>();
                 do
                 {
                     var records = new List<IRecord>();
                     while (reader.ReadRecord())
                         records.Add(new Record(reader.GetFields()));
-                    results.Add(new Result(records));
+                    results.Add(new RecordSet(records));
                 } while (reader.ReadResult());
-				return new ResultCollection(results);
+				return new ResultSet(results);
             }
         }
 
@@ -149,13 +149,13 @@ namespace MData.Foundation
 		public virtual IEnumerable<T> ExecuteEntityCollection<T>()
 			where T : new()
 		{
-            return RecordSetBinder<T>.Bind(ExecuteResult(), () => new T());
+            return RecordSetBinder<T>.Bind(ExecuteRecords(), () => new T());
 		}
 
 		public virtual IEnumerable<T> ExecuteEntityCollection<T>(Func<T> createInstance)
 		{
 			createInstance.ThrowIfNull("createInstance");
-            return RecordSetBinder<T>.Bind(ExecuteResult(), createInstance);
+            return RecordSetBinder<T>.Bind(ExecuteRecords(), createInstance);
 		}
 
         protected virtual IDbCommand CreateCommand()
