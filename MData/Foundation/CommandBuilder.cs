@@ -97,7 +97,7 @@ namespace MData.Foundation
             }
         }
 
-		public virtual IRecordSet ExecuteRecords()
+        public virtual IResult ExecuteResult()
         {
 			using (var reader = ExecuteReader())
             {
@@ -108,11 +108,11 @@ namespace MData.Foundation
             }
         }
 
-		public virtual IResultSet ExecuteResults()
+        public virtual IResultCollection ExecuteResults()
         {
 			using (var reader = ExecuteReader())
             {
-				var results = new List<IRecordSet>();
+				var results = new List<IResult>();
                 do
                 {
                     var records = new List<IRecord>();
@@ -120,7 +120,7 @@ namespace MData.Foundation
                         records.Add(new Record(reader.GetFields()));
                     results.Add(new RecordSet(records));
                 } while (reader.ReadResult());
-				return new ResultSet(results);
+				return new Results(results);
             }
         }
 
@@ -149,13 +149,13 @@ namespace MData.Foundation
 		public virtual IEnumerable<T> ExecuteEntityCollection<T>()
 			where T : new()
 		{
-			return RecordSetBinder<T>.Bind(ExecuteRecords(), () => new T());
+            return RecordSetBinder<T>.Bind(ExecuteResult(), () => new T());
 		}
 
 		public virtual IEnumerable<T> ExecuteEntityCollection<T>(Func<T> createInstance)
 		{
 			createInstance.ThrowIfNull("createInstance");
-			return RecordSetBinder<T>.Bind(ExecuteRecords(), createInstance);
+            return RecordSetBinder<T>.Bind(ExecuteResult(), createInstance);
 		}
 
         protected virtual IDbCommand CreateCommand()
@@ -214,5 +214,5 @@ namespace MData.Foundation
             for (int i = 0; i < args.Length; i++)
                 AddArgument(i < names.Count ? names[i] : "arg" + i, args[i]);
         }
-	}
+    }
 }

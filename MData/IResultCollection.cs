@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MData
 {
-	public interface IRecordSet : IList<IRecord>
+	public interface IResultCollection : IList<IResult>
 	{
 
 	}
