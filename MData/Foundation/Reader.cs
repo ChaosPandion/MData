@@ -33,7 +33,7 @@ namespace MData.Foundation
         public IField GetField(int index)
         {
             return new Field(
-                _reader.GetName(index), 
+                _reader.GetName(index),
                 _reader.GetFieldType(index), 
                 GetFieldValue<object>(index));
         }
@@ -83,5 +83,35 @@ namespace MData.Foundation
         {
             _reader.Dispose();
         }
+
+        #region IReader Members
+
+
+        public object GetFieldValue(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetFieldValue(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Type GetFieldType(Type type)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region IReader Members
+
+
+        public Type GetFieldType(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

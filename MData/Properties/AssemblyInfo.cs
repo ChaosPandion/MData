@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("MData")]
@@ -11,6 +10,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: Guid("f183f7b4-a9f0-4b3b-9f40-c434fdb2d9e6")]
-[assembly: AssemblyVersion("0.3.3.*")]
-[assembly: AssemblyFileVersion("0.3.3")]
+[assembly: Guid("17f9e0e7-cd5a-4147-aad7-92cb453c0c73")]
+[assembly: AssemblyVersion("0.3.6.1")]
+[assembly: AssemblyFileVersion("0.3.6.1")]

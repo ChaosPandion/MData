@@ -17,11 +17,17 @@ namespace MData
 
         IField GetField(string name);
 
+        object GetFieldValue(int index);
+
         T GetFieldValue<T>(int index);
+
+        object GetFieldValue(string name);
 
         T GetFieldValue<T>(string name);
 
         string GetFieldName(int index);
+
+        Type GetFieldType(int index);
 
         int GetFieldIndex(string name);
 

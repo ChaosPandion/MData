@@ -133,29 +133,29 @@ namespace MData.Foundation
 		public virtual T ExecuteEntity<T>() 
 			where T : new()
 		{
-			return RecordBinder<T>.Bind(ExecuteRecord(), () => new T());
+			return MData.Support.RecordBinder<T>.Bind(ExecuteRecord(), () => new T());
 		}
 
 		public virtual T ExecuteEntity<T>(T entity)
 		{
-			return RecordBinder<T>.Bind(ExecuteRecord(), () => entity);
+            return MData.Support.RecordBinder<T>.Bind(ExecuteRecord(), () => entity);
 		}
 
 		public virtual T ExecuteEntity<T>(Func<T> createInstance)
 		{
-			return RecordBinder<T>.Bind(ExecuteRecord(), createInstance);
+            return MData.Support.RecordBinder<T>.Bind(ExecuteRecord(), createInstance);
 		}
 
 		public virtual IEnumerable<T> ExecuteEntityCollection<T>()
 			where T : new()
 		{
-            return RecordSetBinder<T>.Bind(ExecuteRecords(), () => new T());
+            return MData.Support.RecordSetBinder<T>.Bind(ExecuteRecords(), () => new T());
 		}
 
 		public virtual IEnumerable<T> ExecuteEntityCollection<T>(Func<T> createInstance)
 		{
 			createInstance.ThrowIfNull("createInstance");
-            return RecordSetBinder<T>.Bind(ExecuteRecords(), createInstance);
+            return MData.Support.RecordSetBinder<T>.Bind(ExecuteRecords(), createInstance);
 		}
 
         protected virtual IDbCommand CreateCommand()
