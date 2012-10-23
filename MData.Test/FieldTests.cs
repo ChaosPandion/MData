@@ -61,5 +61,8 @@ namespace MData.Test
 
         [Test]
         public void PrimitiveValueShouldDynamicallyConvertToOtherPrimitiveNullableTypes() { decimal? v = (dynamic)new Field("A", typeof(int), 1); }
+
+        [Test]
+        public void DistinctFieldObjectsWithIdenticalValuesShouldBeEqual() { Assert.AreEqual(new Field("A", typeof(int), 1), new Field("A", typeof(int), 1)); }
     }
 }

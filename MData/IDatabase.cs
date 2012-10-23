@@ -9,5 +9,6 @@ namespace MData
     {
         string ConnectionString { get; }
         ICommand BuildCommand(Func<ICommand, ICommand> configure);
+        ICommand BuildDynamicCommand(Func<dynamic, dynamic> configure);
     }
 }

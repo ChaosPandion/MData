@@ -13,11 +13,18 @@ using System.Diagnostics;
 
 namespace MData.Foundation
 {
-    public sealed class Record : DynamicObject, IRecord
+    /// <summary>
+    /// 
+    /// </summary>
+    public sealed class Record : IRecord
     {
         private readonly Dictionary<string, IField> _map = new Dictionary<string, IField>();
         private readonly List<IField> _list = new List<IField>();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fields"></param>
         public Record(IEnumerable<IField> fields)
         {
             Debug.Assert(fields != null);
@@ -31,6 +38,11 @@ namespace MData.Foundation
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="index"></param>
         public T GetValue<T>(int index)
 		{
 			if (index < 0 || index >= _list.Count)
@@ -38,6 +50,11 @@ namespace MData.Foundation
 			return (T)_list[index].Value;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
         public T GetValue<T>(string name)
         {
 			IField field;
@@ -46,6 +63,10 @@ namespace MData.Foundation
 			return (T)field.Value;
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
 		public IField GetField(int index)
 		{
 			if (index < 0 || index >= _list.Count)
@@ -53,6 +74,10 @@ namespace MData.Foundation
 			return _list[index];
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
 		public IField GetField(string name)
 		{
 			IField field;
@@ -61,6 +86,9 @@ namespace MData.Foundation
 			return field;
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
         public IEnumerator<IField> GetEnumerator()
         {
             return _list.GetEnumerator();
@@ -71,13 +99,32 @@ namespace MData.Foundation
             return _list.GetEnumerator();
         }
 
-		public override bool TryGetMember(GetMemberBinder binder, out object result)
-		{
-			IField field;
-			if (!_map.TryGetValue(binder.Name, out field))
-				throw new Exception();
-			result = field;
-			return true;
-		}
-	}
+        DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter)
+        {
+            throw new NotImplementedException();
+        }
+
+        class RecordDynamicMetaObject : DynamicMetaObject
+        {
+            public RecordDynamicMetaObject(Expression expression, Record record)
+                : base(expression, BindingRestrictions.Empty, record) 
+            {
+
+            }
+
+            public override DynamicMetaObject BindGetMember(GetMemberBinder binder)
+            {
+                return base.BindGetMember(binder);
+            }
+        }
+
+        //public override bool TryGetMember(GetMemberBinder binder, out object result)
+        //{
+        //    IField field;
+        //    if (!_map.TryGetValue(binder.Name, out field))
+        //        throw new Exception();
+        //    result = field;
+        //    return true;
+        //}
+    }
 }

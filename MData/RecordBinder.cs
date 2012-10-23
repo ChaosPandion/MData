@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MData.Support
+namespace MData
 {
 	static class RecordBinder<T>
 	{

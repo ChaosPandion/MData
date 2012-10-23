@@ -13,7 +13,6 @@ using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using System.Collections;
 using System.Data.Common;
-using MData.Support;
 
 namespace MData.Foundation
 {
@@ -34,16 +33,30 @@ namespace MData.Foundation
 
         public ICommand BuildCommand(Func<ICommand, ICommand> configure)
         {
-			configure.ThrowIfNull("configure");
-            var cb = CreateCommandBuilder();
-			if (cb == null)
+            configure.ThrowIfNull("configure");
+            var cb = configure(GetCommand());
+            if (cb == null)
                 throw new Exception();
-			cb = configure(cb);
-			if (cb == null)
+            return cb;
+        }
+
+        public ICommand BuildDynamicCommand(Func<dynamic, dynamic> configure)
+        {
+            configure.ThrowIfNull("configure");
+            var cb = configure(GetCommand());
+            if (cb == null)
                 throw new Exception();
-			return cb;
+            return cb;
         }
 
         protected abstract ICommand CreateCommandBuilder();
+
+        private ICommand GetCommand()
+        {
+            var cb = CreateCommandBuilder();
+            if (cb == null)
+                throw new Exception();
+            return cb;
+        }
     }
 }

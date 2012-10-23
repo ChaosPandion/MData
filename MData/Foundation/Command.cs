@@ -9,7 +9,6 @@ using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
-using MData.Support;
 
 namespace MData.Foundation
 {
@@ -26,46 +25,42 @@ namespace MData.Foundation
         {
             _db = db;
         }
-
-		public dynamic Procedures
-		{
-			get { return this; }
-		}
         
-        public ICommand SetText(string value)
+        
+        public ICommand WithText(string value)
         {
             _commandText = value;
             _commandType = CommandType.Text;
             return this;
         }
 
-        public ICommand SetProcedure(string value)
+        public ICommand WithProcedure(string value)
         {
             _commandText = value;
             _commandType = CommandType.StoredProcedure;
             return this;
         }
 
-        public ICommand SetTimeout(int value)
+        public ICommand WithTimeout(int value)
         {
             _commandTimeout = value;
             return this;
         }
 
-        public ICommand AddArgument<T>(string name, T value)
+        public ICommand WithParam<T>(string name, T value)
         {
             _commandParameters.TryAdd(name, value);
             return this;
         }
 
-        public ICommand AddArguments(IDictionary<string, object> args)
+        public ICommand WithParams(IDictionary<string, object> args)
         {
             foreach (var kv in args)
                 _commandParameters.TryAdd(kv.Key, kv.Value);
             return this;
         }
 
-        public ICommand AddArguments<T>(T value)
+        public ICommand WithParams<T>(T value)
         {
             Reflection.ForEachProperty(value, (k, v) => _commandParameters.TryAdd(k, v));
             return this;
@@ -133,29 +128,29 @@ namespace MData.Foundation
 		public virtual T ExecuteEntity<T>() 
 			where T : new()
 		{
-			return MData.Support.RecordBinder<T>.Bind(ExecuteRecord(), () => new T());
+			return RecordBinder<T>.Bind(ExecuteRecord(), () => new T());
 		}
 
 		public virtual T ExecuteEntity<T>(T entity)
 		{
-            return MData.Support.RecordBinder<T>.Bind(ExecuteRecord(), () => entity);
+            return RecordBinder<T>.Bind(ExecuteRecord(), () => entity);
 		}
 
 		public virtual T ExecuteEntity<T>(Func<T> createInstance)
 		{
-            return MData.Support.RecordBinder<T>.Bind(ExecuteRecord(), createInstance);
+            return RecordBinder<T>.Bind(ExecuteRecord(), createInstance);
 		}
 
 		public virtual IEnumerable<T> ExecuteEntityCollection<T>()
 			where T : new()
 		{
-            return MData.Support.RecordSetBinder<T>.Bind(ExecuteRecords(), () => new T());
+            return RecordSetBinder<T>.Bind(ExecuteRecords(), () => new T());
 		}
 
 		public virtual IEnumerable<T> ExecuteEntityCollection<T>(Func<T> createInstance)
 		{
 			createInstance.ThrowIfNull("createInstance");
-            return MData.Support.RecordSetBinder<T>.Bind(ExecuteRecords(), createInstance);
+            return RecordSetBinder<T>.Bind(ExecuteRecords(), createInstance);
 		}
 
         protected virtual IDbCommand CreateCommand()
@@ -182,14 +177,14 @@ namespace MData.Foundation
 
         public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)
         {
-            SetText(indexes[0].ToString());
+            WithText(indexes[0].ToString());
             result = this;
             return true;
         }
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            SetProcedure(_commandText != null ? _commandText + "." + binder.Name : binder.Name);
+            WithProcedure(_commandText != null ? _commandText + "." + binder.Name : binder.Name);
             result = this;
             return true;
         }
@@ -203,7 +198,7 @@ namespace MData.Foundation
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            SetProcedure(_commandText != null ? _commandText + "." + binder.Name : binder.Name);
+            WithProcedure(_commandText != null ? _commandText + "." + binder.Name : binder.Name);
             AddArgs(binder.CallInfo.ArgumentNames, args);
             result = this;
             return true;
@@ -212,7 +207,7 @@ namespace MData.Foundation
         private void AddArgs(ReadOnlyCollection<string> names, object[] args)
         {
             for (int i = 0; i < args.Length; i++)
-                AddArgument(i < names.Count ? names[i] : "arg" + i, args[i]);
+                WithParam(i < names.Count ? names[i] : "arg" + i, args[i]);
         }
     }
 }

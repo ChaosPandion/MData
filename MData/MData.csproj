@@ -65,14 +65,18 @@
     <Compile Include="Providers\SqlServer\SqlServerCommand.cs" />
     <Compile Include="Providers\SqlServer\SqlServerDatabase.cs" />
     <Compile Include="Foundation\Reader.cs" />
-    <Compile Include="Support\Option.cs" />
-    <Compile Include="Support\RecordBinder.cs" />
-    <Compile Include="Support\RecordSetBinder.cs" />
-    <Compile Include="Support\Reflection.cs" />
-    <Compile Include="Support\Validation.cs" />
+    <Compile Include="RecordBinder.cs" />
+    <Compile Include="RecordSetBinder.cs" />
+    <Compile Include="Reflection.cs" />
+    <Compile Include="Validation.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>"C:\Program Files (x86)\Microsoft SDKs\F#\3.0\Framework\v4.0\Fsi.exe" --lib:$(SolutionDir)Scripts --use:IncrementRevision.fsx --exec -- $(SolutionDir)</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

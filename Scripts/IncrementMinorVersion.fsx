@@ -2,5 +2,14 @@ open System
 open System.IO
 open System.Text.RegularExpressions
 
-for file in Directory.EnumerateFiles("../", "AssemblyInfo.cs", SearchOption.AllDirectories) do
-  File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), "", fun m -> ""))
+let path = if fsi.CommandLineArgs.Length > 0 then @"C:\Users\Matthew\Projects\MData" else fsi.CommandLineArgs.[1]
+let x = List.ofSeq (Directory.EnumerateFiles(path, "AssemblyInfo.cs", SearchOption.AllDirectories))
+if x.Length = 0 then printfn "no files: %s" path else
+for filePath in x  do
+    let text = File.ReadAllText(filePath)
+    let evaluator (m:Match) = 
+        printfn "match found: %s" m.Value
+        let bn = ((m.Groups.[2].Value |> int) + 1) |> string
+        m.Groups.[1].Value + "." + bn + ".0.0"
+    let text = Regex.Replace(text, @"(\d+)\.(\d+)\.(\d+).(\d+)", evaluator)
+    File.WriteAllText(filePath, text)

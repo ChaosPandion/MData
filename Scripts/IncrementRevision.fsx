@@ -9,7 +9,7 @@ for filePath in x  do
     let text = File.ReadAllText(filePath)
     let evaluator (m:Match) = 
         printfn "match found: %s" m.Value
-        let bn = ((m.Groups.[1].Value |> int) + 1) |> string
-        bn + ".0.0.0"
+        let bn = ((m.Groups.[4].Value |> int) + 1) |> string
+        m.Groups.[1].Value + "." + m.Groups.[2].Value + "." + m.Groups.[3].Value + "." + bn
     let text = Regex.Replace(text, @"(\d+)\.(\d+)\.(\d+).(\d+)", evaluator)
     File.WriteAllText(filePath, text)

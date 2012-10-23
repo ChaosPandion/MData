@@ -8,36 +8,22 @@ namespace MData
 {
     public interface ICommand
     {
-		dynamic Procedures { get; }
-
-        ICommand SetText(string value);
-
-        ICommand SetProcedure(string value);
-
-        ICommand SetTimeout(int value);
-
-        ICommand AddArgument<T>(string name, T value);
-
-        ICommand AddArguments(IDictionary<string, object> args);
-
-		ICommand AddArguments<T>(T value);
+        ICommand WithText(string value);
+        ICommand WithProcedure(string value);
+        ICommand WithTimeout(int value);
+        ICommand WithParam<T>(string name, T value);
+        ICommand WithParams(IDictionary<string, object> args);
+        ICommand WithParams<T>(T value);
 
 		void Execute();
-
 		T Execute<T>();
-
 		IRecord ExecuteRecord();
-
 		IRecordSet ExecuteRecords();
-
         IResultSet ExecuteResults();
-
 		IReader ExecuteReader();
-
         T ExecuteEntity<T>() where T : new();
         T ExecuteEntity<T>(T entity);
         T ExecuteEntity<T>(Func<T> createInstance);
-
         IEnumerable<T> ExecuteEntityCollection<T>() where T : new();
         IEnumerable<T> ExecuteEntityCollection<T>(Func<T> createInstance);
     }

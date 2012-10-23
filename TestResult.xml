@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="C:\Users\Matthew\Projects\MData\MData.nunit" total="19" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2012-10-22" time="20:55:14">
+  <environment nunit-version="2.6.1.12217" clr-version="2.0.50727.5456" os-version="Microsoft Windows NT 6.1.7601 Service Pack 1" platform="Win32NT" cwd="C:\Users\Matthew\Projects\MData" machine-name="DESKTOPMATTHEW" user="Matthew" user-domain="DesktopMatthew" />
+  <culture-info current-culture="en-US" current-uiculture="en-US" />
+  <test-suite type="Project" name="C:\Users\Matthew\Projects\MData\MData.nunit" executed="True" result="Success" success="True" time="0.969" asserts="0">
+    <results>
+      <test-suite type="Assembly" name="C:\Users\Matthew\Projects\MData\MData.Test\bin\Debug\MData.Test.exe" executed="True" result="Success" success="True" time="0.949" asserts="0">
+        <results>
+          <test-suite type="TestFixture" name="FieldTests" executed="True" result="Success" success="True" time="0.946" asserts="0">
+            <results>
+              <test-case name="MData.Test.FieldTests.DistinctFieldObjectsWithIdenticalValuesShouldBeEqual" executed="True" result="Success" success="True" time="0.046" asserts="1" />
+              <test-case name="MData.Test.FieldTests.NameShouldMatchAfterConstruction" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+              <test-case name="MData.Test.FieldTests.NameShouldNotBeNullAfterConstruction" executed="True" result="Success" success="True" time="0.010" asserts="1" />
+              <test-case name="MData.Test.FieldTests.PrimitiveValueShouldDynamicallyConvertToOtherPrimitiveNullableTypes" executed="True" result="Success" success="True" time="0.779" asserts="0" />
+              <test-case name="MData.Test.FieldTests.PrimitiveValueShouldDynamicallyConvertToOtherPrimitiveTypes" executed="True" result="Success" success="True" time="0.009" asserts="0" />
+              <test-case name="MData.Test.FieldTests.ShouldNotThrowWhenValueIsNullableAndTypeIsUnderlyingType" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+              <test-case name="MData.Test.FieldTests.ShouldNotThrowWhenValueIsNullAndTypeIsNotNullable" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+              <test-case name="MData.Test.FieldTests.ShouldThrowOnNullName" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+              <test-case name="MData.Test.FieldTests.ShouldThrowOnNullType" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+              <test-case name="MData.Test.FieldTests.ShouldThrowWhenNullValueDynamicallyConvertedToNonNullableValueType" executed="True" result="Success" success="True" time="0.009" asserts="1" />
+              <test-case name="MData.Test.FieldTests.ShouldThrowWhenTypeDoesNotMatchValue" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+              <test-case name="MData.Test.FieldTests.ShouldThrowWhenTypeIsNullableStruct" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+              <test-case name="MData.Test.FieldTests.TypeShouldMatchAfterConstruction" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+              <test-case name="MData.Test.FieldTests.TypeShouldNotBeNullAfterConstruction" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+              <test-case name="MData.Test.FieldTests.ValueShouldBeNullAfterConstructionWhenPassedANullValue" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+              <test-case name="MData.Test.FieldTests.ValueShouldDynamicallyConvertToNullableType" executed="True" result="Success" success="True" time="0.008" asserts="0" />
+              <test-case name="MData.Test.FieldTests.ValueShouldDynamicallyConvertToType" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+              <test-case name="MData.Test.FieldTests.ValueShouldMatchAfterConstruction" executed="True" result="Success" success="True" time="0.004" asserts="1" />
+              <test-case name="MData.Test.FieldTests.ValueShouldNotBeNullAfterConstructionWhenPassedANonNullValue" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>
