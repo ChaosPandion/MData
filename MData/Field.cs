@@ -4,6 +4,8 @@ using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.Linq.Expressions;
 using System.Globalization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MData
 {
@@ -113,32 +115,114 @@ namespace MData
 			return new FieldDynamicMetaObject(parameter, this);
 		}
 
-		[DebuggerStepThrough]
-		sealed class FieldDynamicMetaObject : DynamicMetaObject
-		{
-			public FieldDynamicMetaObject(Expression expression, Field field)
-				: base(expression, BindingRestrictions.Empty, field)
-			{
-				if (field == null)
-					throw new ArgumentNullException("field");
-			}
 
-			public override DynamicMetaObject BindConvert(ConvertBinder binder)
-			{
-				if (binder == null)
-					throw new ArgumentNullException("binder");
-				return new DynamicMetaObject(
-					Expression.Convert(
-						Expression.Constant(
-							Convert.ChangeType(
-								((Field)Value).Value, 
-								Nullable.GetUnderlyingType(binder.Type) ?? binder.Type,
-								CultureInfo.InvariantCulture)), 
-						binder.Type),
-					BindingRestrictions.GetTypeRestriction(
-						Expression, 
-						LimitType));
-			}
-		}
+        [TestClass]
+        [ExcludeFromCodeCoverage]
+        public sealed class Tests
+        {
+            [TestMethod]
+            [Description("XXXXXX")]
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void ShouldThrowOnNullName() { new Field(null, typeof(int), 1); }
+
+            [TestMethod]
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void ShouldThrowOnNullType() { new Field("A", null, 1); }
+
+            [TestMethod]
+            [ExpectedException(typeof(ArgumentException))]
+            public void ShouldThrowWhenTypeDoesNotMatchValue() { new Field("A", typeof(string), 1); }
+
+            [TestMethod]
+            [ExpectedException(typeof(ArgumentException))]
+            public void ShouldThrowWhenTypeIsNullableStruct() { new Field("A", typeof(int?), 1); }
+
+            [TestMethod]
+            public void ShouldNotThrowWhenValueIsNullableAndTypeIsUnderlyingType() { new Field("A", typeof(int), (int?)1); }
+
+            [TestMethod]
+            public void ShouldNotThrowWhenValueIsNullAndTypeIsNotNullable() { new Field("A", typeof(int), null); }
+
+            [TestMethod]
+            public void NameShouldNotBeNullAfterConstruction() { Assert.IsNotNull(new Field("A", typeof(int), 1).Name); }
+
+            [TestMethod]
+            public void TypeShouldNotBeNullAfterConstruction() { Assert.IsNotNull(new Field("A", typeof(int), 1).Type); }
+
+            [TestMethod]
+            public void ValueShouldNotBeNullAfterConstructionWhenPassedANonNullValue() { Assert.IsNotNull(new Field("A", typeof(int), 1).Value); }
+
+            [TestMethod]
+            public void ValueShouldBeNullAfterConstructionWhenPassedANullValue() { Assert.IsNull(new Field("A", typeof(int), null).Value); }
+
+            [TestMethod]
+            public void NameShouldMatchAfterConstruction() { Assert.AreEqual(new Field("A", typeof(int), 1).Name, "A"); }
+
+            [TestMethod]
+            public void TypeShouldMatchAfterConstruction() { Assert.AreEqual(new Field("A", typeof(int), 1).Type, typeof(int)); }
+
+            [TestMethod]
+            public void ValueShouldMatchAfterConstruction() { Assert.AreEqual(new Field("A", typeof(int), 1).Value, 1); }
+
+            [TestMethod]
+            public void ValueShouldDynamicallyConvertToType() { int v = (dynamic)new Field("A", typeof(int), 1); }
+
+            [TestMethod]
+            [ExpectedException(typeof(InvalidCastException))]
+            public void ShouldThrowWhenNullValueDynamicallyConvertedToNonNullableValueType() { int v = (dynamic)new Field("A", typeof(int), null); }
+
+            [TestMethod]
+            public void ValueShouldDynamicallyConvertToNullableType() { int? v = (dynamic)new Field("A", typeof(int), 1); }
+
+            [TestMethod]
+            public void PrimitiveValueShouldDynamicallyConvertToOtherPrimitiveTypes() { decimal v = (dynamic)new Field("A", typeof(int), 1); }
+
+            [TestMethod]
+            public void PrimitiveValueShouldDynamicallyConvertToOtherPrimitiveNullableTypes() { decimal? v = (dynamic)new Field("A", typeof(int), 1); }
+
+            [TestMethod]
+            public void DistinctFieldObjectsWithIdenticalValuesShouldBeEqual() { Assert.AreEqual(new Field("A", typeof(int), 1), new Field("A", typeof(int), 1)); }
+
+            [TestMethod]
+            public void ToStringIsTheSameForEqualFields()
+            {
+                var f1 = new Field("A", typeof(int), 1);
+                var f2 = new Field("A", typeof(int), 1);
+                Assert.AreEqual(f1.ToString(), f2.ToString());
+            }
+
+            [TestMethod]
+            public void GetHashCodeIsTheSameForEqualFields()
+            {
+                var f1 = new Field("A", typeof(int), 1);
+                var f2 = new Field("A", typeof(int), 1);
+                Assert.AreEqual(f1.GetHashCode(), f2.GetHashCode());
+            }
+
+            [TestMethod]
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void GetMetaObjectThrowsWhenPassedNull() { ((IDynamicMetaObjectProvider)new Field("A", typeof(int), 1)).GetMetaObject(null); }
+
+            [TestMethod]
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void BindConvertThrowsWhenPassedNull()
+            {
+                var f = new Field("A", typeof(int), 1);
+                var p = (IDynamicMetaObjectProvider)f;
+                var m = p.GetMetaObject(Expression.Parameter(typeof(object)));
+                var r = m.BindConvert(null);
+            }
+
+            [TestMethod]
+            public void BindConvertReturnsCorrectType()
+            {
+                var f = new Field("A", typeof(int), 1);
+                var p = (IDynamicMetaObjectProvider)f;
+                var param = Expression.Parameter(typeof(object));
+                var m = p.GetMetaObject(param);
+                var func = Expression.Lambda<Func<object, IField>>(Expression.Convert(m.Expression, typeof(IField)), param).Compile();
+                Assert.AreEqual(f, func(f));
+            }
+        }
 	}
 }

@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -20,27 +23,159 @@ namespace MData
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly List<IField> _list = new List<IField>();
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private int _resultIndex;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private int _recordIndex;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private IRecord _nextResult;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private IRecord _nextRecord;
+
         /// <summary>
-		/// Creates a new immutable instance using the supplied fields.
+        /// 
         /// </summary>
-        /// <param name="fields">The fields that will be contained in this record.</param>
-        public Record(IEnumerable<IField> fields)
-		{
-			if (fields == null)
-				throw new ArgumentNullException("fields");
-            foreach (var field in fields)
-			{
-				if (field == null)
-					throw new ArgumentException("Cannot contain null values.", "fields");
-                _list.Add(field);
-                _map.Add(field.Name, field);
+        /// <param name="results"></param>
+        public Record(IEnumerable<IEnumerable<IEnumerable<IField>>> results)
+        {
+            if (results == null)
+                throw new ArgumentNullException("results");
+            var resultIndex = 0;
+            var r = this;
+            foreach (var result in results)
+            {
+                if (result == null)
+                    throw new ArgumentException("results");
+                if (resultIndex > 0)
+                {
+                    r._nextResult = new Record();
+                    r = (Record)r._nextResult;
+                }
+                var recordIndex = 0;
+                foreach (var record in result)
+                {
+                    if (record == null)
+                        throw new ArgumentException("results");
+                    if (recordIndex > 0)
+                    {
+                        r._nextRecord = new Record();
+                        r = (Record)r._nextRecord;
+                    }
+                    foreach (var field in record)
+                    {
+                        if (field == null)
+                            throw new ArgumentException("field");
+                        r._list.Add(field);
+                        r._map.Add(field.Name, field);
+                    }
+                    r._recordIndex = recordIndex;
+                    recordIndex++;
+                }
+                r._resultIndex = resultIndex;
+                resultIndex++;
             }
+        }
+
+        private Record()
+        {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int ResultCount
+        {
+            get 
+            {
+                var x = this;
+                do
+                {
+                    if (x._nextResult != null)
+                    {
+                        x = (Record)x._nextResult;
+                    }
+                    else if (x.NextRecord != null)
+                    {
+                        x = (Record)x._nextRecord;
+                    }
+                    else
+                    {
+                        return x._resultIndex + 1;
+                    }
+                } while (true);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int RecordCount
+        {
+            get
+            {
+                var x = this;
+                do
+                {
+                    if (x._nextRecord != null)
+                    {
+                        x = (Record)x._nextRecord;
+                    }
+                    else
+                    {
+                        return x._recordIndex + 1;
+                    }
+                } while (true);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int ResultIndex
+        {
+            get { return _resultIndex; }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int RecordIndex
+        {
+            get { return _recordIndex; }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IRecord NextResult
+        {
+            get 
+            { 
+                if (_nextResult != null)
+                    return _nextResult;
+                var x = this;
+                while (x._nextRecord != null)
+                    x = (Record)x._nextRecord;
+                return x._nextResult;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IRecord NextRecord
+        {
+            get { return _nextRecord; }
         }
 
 		/// <summary>
 		/// Gets the number of fields.
 		/// </summary>
-		public int Count
+		public int FieldCount
 		{
 			get { return _list.Count; }
 		}
@@ -112,39 +247,318 @@ namespace MData
 
         DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter)
 		{
-			if (parameter == null)
-				throw new ArgumentNullException("parameter");
 			return new RecordDynamicMetaObject(parameter, this);
 		}
 
-		[DebuggerStepThrough]
-		sealed class RecordDynamicMetaObject : DynamicMetaObject
-		{
-			private static readonly Type _recordType = typeof(Record);
-			private static readonly MethodInfo _getFieldMethod = _recordType.GetMethod("GetField", new [] { typeof(string) });
+        [TestClass]
+        [ExcludeFromCodeCoverage]
+        public sealed class Tests
+        {
+            
+            [TestMethod]
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void ShouldThrowOnNullResults() 
+            { 
+                new Record(null); 
+            }
 
-			public RecordDynamicMetaObject(Expression expression, Record record)
-				: base(expression, BindingRestrictions.Empty, record)
-			{
+            [TestMethod]
+            [ExpectedException(typeof(ArgumentException))]
+            public void ShouldThrowOnNullRecords() 
+            {
+                new Record(new List<List<List<IField>>> { new List<List<IField>>(), null }); 
+            }
 
-			}
+            [TestMethod]
+            [ExpectedException(typeof(ArgumentException))]
+            public void ShouldThrowOnNullRecord()
+            {
+                new Record(new List<List<List<IField>>>
+                {
+                    new List<List<IField>>
+                    {
+                        new List<IField>
+                        {
+                            new Field("A", typeof(int), 1),
+                            new Field("B", typeof(int), 1),
+                            new Field("C", typeof(int), 1)
+                        },                
+                        null
+                    }
+                });
+            }
 
-			public override DynamicMetaObject BindGetMember(GetMemberBinder binder)
-			{
-				if (binder == null)
-					throw new ArgumentNullException("binder");
-				return new DynamicMetaObject(
-					Expression.Call(
-						Expression.Convert(
-							Expression,
-							_recordType),
-						_getFieldMethod, 
-						Expression.Constant(binder.Name)),
-					BindingRestrictions.GetTypeRestriction(
-						Expression, 
-						LimitType), 
-					Value);
-			}
-		}
+            [TestMethod]
+            [ExpectedException(typeof(ArgumentException))]
+            public void ShouldThrowOnNullField()
+            {
+                new Record(new List<List<List<IField>>>
+                {
+                    new List<List<IField>>
+                    {
+                        new List<IField>
+                        {
+                            new Field("A", typeof(int), 1),
+                            new Field("B", typeof(int), 1),
+                            null
+                        }
+                    }
+                });
+            }
+
+            [TestMethod]
+            public void ResultCountShouldMatchInput()
+            {
+                Assert.AreEqual(2,
+                    new Record(new List<List<List<IField>>> { 
+                        new List<List<IField>>(), 
+                        new List<List<IField>>() }).ResultCount);
+            }
+
+            [TestMethod]
+            public void RecordCountShouldMatchInput()
+            {
+                Assert.AreEqual(2,
+                    new Record(new List<List<List<IField>>> { 
+                        new List<List<IField>> {
+                            new List<IField>(),
+                            new List<IField>()
+                        }}).RecordCount);
+            }
+
+            [TestMethod]
+            public void ResultIndexShouldIncrement()
+            {
+                var r = (IRecord)new Record(new List<List<List<IField>>> { 
+                        new List<List<IField>>(), 
+                        new List<List<IField>>() });
+                Assert.AreEqual(0, r.ResultIndex);
+                r = r.NextResult;
+                Assert.IsNotNull(r);
+                Assert.AreEqual(1, r.ResultIndex);
+
+            }
+
+            [TestMethod]
+            public void RecordIndexShouldIncrement()
+            {
+                var r = (IRecord)new Record(new List<List<List<IField>>> { new List<List<IField>> { 
+                    new List<IField> { new Field("A", typeof(int), 1) },
+                    new List<IField> { new Field("A", typeof(int), 1) }} });
+                Assert.AreEqual(0, r.RecordIndex);
+                r = r.NextRecord;
+                Assert.IsNotNull(r);
+                Assert.AreEqual(1, r.RecordIndex);
+
+            }
+
+            [TestMethod]
+            public void FieldCountShouldMatchInput()
+            {
+                var r = (IRecord)new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1) } } });
+                Assert.AreEqual(1, r.FieldCount);
+            }
+
+            [TestMethod]
+            public void ShouldBeAbleToGetNextResultFromFirstRecordWhenThereIsMoreThanOneRecord()
+            {
+                var r = (IRecord)new Record(new List<List<List<IField>>>
+                {
+                    new List<List<IField>>
+                    {
+                        new List<IField>
+                        {
+                            new Field("A", typeof(int), 1),
+                            new Field("B", typeof(int), 1),
+                            new Field("C", typeof(int), 1)
+                        },                
+                        new List<IField>
+                        {
+                            new Field("A", typeof(int), 1),
+                            new Field("B", typeof(int), 1),
+                            new Field("C", typeof(int), 1)
+                        }
+                    },  
+                    new List<List<IField>>
+                    {
+                        new List<IField>
+                        {
+                            new Field("A", typeof(int), 1),
+                            new Field("B", typeof(int), 1),
+                            new Field("C", typeof(int), 1)
+                        },                
+                        new List<IField>
+                        {
+                            new Field("A", typeof(int), 1),
+                            new Field("B", typeof(int), 1),
+                            new Field("C", typeof(int), 1)
+                        }
+                    }
+                });
+                Assert.AreEqual(2, r.ResultCount);
+                Assert.AreEqual(2, r.RecordCount);
+                Assert.AreEqual(3, r.FieldCount);
+                var x = r.NextRecord;
+                Assert.IsNotNull(x);
+                Assert.AreEqual(2, x.ResultCount);
+                Assert.AreEqual(2, x.RecordCount);
+                Assert.AreEqual(3, x.FieldCount);
+                var y = r.NextResult;
+                Assert.IsNotNull(y);
+                Assert.AreEqual(2, y.ResultCount);
+                Assert.AreEqual(2, y.RecordCount);
+                Assert.AreEqual(3, y.FieldCount);
+                var z = y.NextRecord;
+                Assert.IsNotNull(z);
+                Assert.AreEqual(2, z.ResultCount);
+                Assert.AreEqual(2, z.RecordCount);
+                Assert.AreEqual(3, z.FieldCount);
+            }
+
+            [TestMethod]
+            [ExpectedException(typeof(FieldMissingException))]
+            public void GetValueShouldThrowWhenPassedNegativeIndex()
+            {
+                new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1), new Field("B", typeof(int), 2) } } }).GetValue<int>(-1);
+            }
+
+            [TestMethod]
+            [ExpectedException(typeof(FieldMissingException))]
+            public void GetValueShouldThrowWhenPassedIndexThatIsGreaterThanFieldCount()
+            {
+                new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1), new Field("B", typeof(int), 2) } } }).GetValue<int>(3);
+            }
+
+            [TestMethod]
+            public void GetValueByIndexShouldReturnANonNullValue()
+            {
+                Assert.IsNotNull(new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1), new Field("B", typeof(int), 2) } } }).GetValue<int>(0));
+            }
+
+            [TestMethod]
+            public void GetValueByIndexShouldMatchInput()
+            {
+                Assert.AreEqual(1, new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1), new Field("B", typeof(int), 2) } } }).GetValue<int>(0));
+            }
+
+            [TestMethod]
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void GetValueByNameShouldThrowOnNull()
+            {
+                new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1), new Field("B", typeof(int), 2) } } }).GetValue<int>(null);
+            }
+
+            [TestMethod]
+            [ExpectedException(typeof(FieldMissingException))]
+            public void GetValueByNameShouldThrowOnInvalidName()
+            {
+                new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1), new Field("B", typeof(int), 2) } } }).GetValue<int>("C");
+            }
+
+            [TestMethod]
+            public void GetValueByNameShouldNotReturnANullValue()
+            {
+                Assert.IsNotNull(new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1), new Field("B", typeof(int), 2) } } }).GetValue<int>("A"));
+            }
+
+            [TestMethod]
+            public void GetValueByNameShouldMatchInput()
+            {
+                Assert.AreEqual(1, new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1), new Field("B", typeof(int), 2) } } }).GetValue<int>("A"));
+            }
+
+            [TestMethod]
+            [ExpectedException(typeof(FieldMissingException))]
+            public void GetFieldShouldThrowWhenPassedNegativeIndex()
+            {
+                new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1), new Field("B", typeof(int), 2) } } }).GetField(-1);
+            }
+
+            [TestMethod]
+            [ExpectedException(typeof(FieldMissingException))]
+            public void GetFieldShouldThrowWhenPassedIndexThatIsGreaterThanFieldCount()
+            {
+                new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1), new Field("B", typeof(int), 2) } } }).GetField(3);
+            }
+
+            [TestMethod]
+            public void GetFieldByIndexShouldReturnANonNullValue()
+            {
+                Assert.IsNotNull(new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1), new Field("B", typeof(int), 2) } } }).GetField(0));
+            }
+
+            [TestMethod]
+            public void GetFieldByIndexShouldMatchInput()
+            {
+                var f = new Field("A", typeof(int), 1);
+                Assert.AreEqual(f, new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { f, new Field("B", typeof(int), 2) } } }).GetField(0));
+            }
+
+            [TestMethod]
+            [ExpectedException(typeof(ArgumentNullException))]
+            public void GetFieldByNameShouldThrowOnNull()
+            {
+                new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField>() } }).GetField(null);
+            }
+
+            [TestMethod]
+            [ExpectedException(typeof(FieldMissingException))]
+            public void GetFieldByNameShouldThrowOnInvalidName()
+            {
+                new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField>() } }).GetField("C");
+            }
+
+            [TestMethod]
+            public void GetFieldByNameShouldNotReturnANullValue()
+            {
+                Assert.IsNotNull(new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { new Field("A", typeof(int), 1) } } }).GetField("A"));
+            }
+
+            [TestMethod]
+            public void GetFieldByNameShouldMatchInput()
+            {
+                var f = new Field("A", typeof(int), 1);
+                Assert.AreEqual(f, new Record(new List<List<List<IField>>> { new List<List<IField>> { new List<IField> { f } } }).GetField("A"));
+            }
+
+            [TestMethod]
+            public void GenericGetEnumeratorShouldMatchInput()
+            {
+                var f = new Field("A", typeof(int), 1);
+                var r = (IRecord)new Record(new List<List<List<IField>>> { new List<List<IField>> { 
+                    new List<IField> { f } } });
+                using (var e = r.GetEnumerator())
+                {
+                    Assert.IsNotNull(e);
+                    Assert.IsTrue(e.MoveNext());
+                    Assert.AreEqual(f, e.Current);
+                    Assert.IsFalse(e.MoveNext());
+                }
+            }
+
+            [TestMethod]
+            public void GetEnumeratorShouldMatchInput()
+            {
+                var f = new Field("A", typeof(int), 1);
+                var r = (IRecord)new Record(new List<List<List<IField>>> { new List<List<IField>> { 
+                    new List<IField> { f } } });
+                var e = ((IEnumerable)r).GetEnumerator();
+                Assert.IsNotNull(e);
+                Assert.IsTrue(e.MoveNext());
+                Assert.AreEqual(f, e.Current);
+                Assert.IsFalse(e.MoveNext());                
+            }
+
+            [TestMethod]
+            public void ShouldAllowDynamicFieldAccess()
+            {
+                var f1 = new Field("A", typeof(int), 1);
+                var f2 = new Field("B", typeof(int), 2);
+                dynamic r = (IRecord)new Record(new List<List<List<IField>>> { new List<List<IField>> { 
+                    new List<IField> { f1, f2 } } });
+                Assert.AreEqual(f1, r.A);
+                Assert.AreEqual(f2, r.B);
+            }
+        }
     }
 }

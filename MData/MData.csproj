@@ -35,6 +35,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -45,26 +46,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FieldDynamicMetaObject.cs" />
     <Compile Include="FieldMissingException.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="Field.cs" />
     <Compile Include="Record.cs" />
     <Compile Include="Databases.cs" />
-    <Compile Include="RecordSet.cs" />
-    <Compile Include="ResultSet.cs" />
+    <Compile Include="RecordDynamicMetaObject.cs" />
     <Compile Include="IField.cs" />
     <Compile Include="IReader.cs" />
     <Compile Include="IRecord.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="IDatabase.cs" />
-    <Compile Include="IRecordSet.cs" />
-    <Compile Include="IResultSet.cs" />
     <Compile Include="MDataException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Reader.cs" />
     <Compile Include="RecordBinder.cs" />
-    <Compile Include="RecordSetBinder.cs" />
     <Compile Include="Reflection.cs" />
     <Compile Include="Validation.cs" />
   </ItemGroup>

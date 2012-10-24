@@ -82,75 +82,26 @@ namespace MData
             }
         }
 
-		public virtual IRecord ExecuteRecord()
+        public virtual IRecord ExecuteResults()
         {
-			using (var reader = ExecuteReader())
-            {
-                if (!reader.ReadRecord())
-                    throw new Exception();
-                return new Record(reader.GetFields());
-            }
-        }
-
-        public virtual IRecordSet ExecuteRecords()
-        {
-			using (var reader = ExecuteReader())
-            {
-                var records = new List<IRecord>();
-                while (reader.ReadRecord())
-                    records.Add(new Record(reader.GetFields()));
-				return new RecordSet(records);
-            }
-        }
-
-        public virtual IResultSet ExecuteResults()
-        {
-			using (var reader = ExecuteReader())
-            {
-				var results = new List<IRecordSet>();
-                do
-                {
-                    var records = new List<IRecord>();
-                    while (reader.ReadRecord())
-                        records.Add(new Record(reader.GetFields()));
-                    results.Add(new RecordSet(records));
-                } while (reader.ReadResult());
-				return new ResultSet(results);
-            }
+            return null;
+            //using (var reader = ExecuteReader())
+            //{
+            //    var results = new List<IRecordSet>();
+            //    do
+            //    {
+            //        var records = new List<IRecord>();
+            //        while (reader.ReadRecord())
+            //            records.Add(new Record(reader.GetFields()));
+            //        results.Add(new RecordSet(records));
+            //    } while (reader.ReadResult());
+            //    return new ResultSet(results);
+            //}
         }
 
 		public virtual IReader ExecuteReader()
         {
             return new Reader(CreateCommand().ExecuteReader(CommandBehavior.CloseConnection));
-		}
-
-
-		public virtual T ExecuteEntity<T>() 
-			where T : new()
-		{
-			return RecordBinder<T>.Bind(ExecuteRecord(), () => new T());
-		}
-
-		public virtual T ExecuteEntity<T>(T entity)
-		{
-            return RecordBinder<T>.Bind(ExecuteRecord(), () => entity);
-		}
-
-		public virtual T ExecuteEntity<T>(Func<T> createInstance)
-		{
-            return RecordBinder<T>.Bind(ExecuteRecord(), createInstance);
-		}
-
-		public virtual IEnumerable<T> ExecuteEntityCollection<T>()
-			where T : new()
-		{
-            return RecordSetBinder<T>.Bind(ExecuteRecords(), () => new T());
-		}
-
-		public virtual IEnumerable<T> ExecuteEntityCollection<T>(Func<T> createInstance)
-		{
-			createInstance.ThrowIfNull("createInstance");
-            return RecordSetBinder<T>.Bind(ExecuteRecords(), createInstance);
 		}
 
         protected virtual IDbCommand CreateCommand()

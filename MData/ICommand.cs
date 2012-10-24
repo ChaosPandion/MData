@@ -16,15 +16,8 @@ namespace MData
         ICommand WithParams<T>(T value);
 
 		void Execute();
-		T Execute<T>();
-		IRecord ExecuteRecord();
-		IRecordSet ExecuteRecords();
-        IResultSet ExecuteResults();
+        T Execute<T>();
+        IRecord ExecuteResults();
 		IReader ExecuteReader();
-        T ExecuteEntity<T>() where T : new();
-        T ExecuteEntity<T>(T entity);
-        T ExecuteEntity<T>(Func<T> createInstance);
-        IEnumerable<T> ExecuteEntityCollection<T>() where T : new();
-        IEnumerable<T> ExecuteEntityCollection<T>(Func<T> createInstance);
     }
 }

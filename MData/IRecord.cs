@@ -8,10 +8,25 @@ namespace MData
     /// </summary>
     public interface IRecord : IDynamicMetaObjectProvider, IEnumerable<IField>
     {
+        int ResultCount { get; }
+
+        int RecordCount { get; }
+
+
+        int ResultIndex { get; }
+
+        int RecordIndex { get; }
+
+
+        IRecord NextResult { get; }
+
+        IRecord NextRecord { get; }
+
+
 		/// <summary>
 		/// Gets the number of fields.
 		/// </summary>
-		int Count { get; }
+		int FieldCount { get; }
 
         /// <summary>
         /// Gets the value of the field at the specified index.
