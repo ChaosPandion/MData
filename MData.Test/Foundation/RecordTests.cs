@@ -2,7 +2,7 @@
 using System.Linq;
 using NUnit.Framework;
 
-namespace MData.Test
+namespace MData.Test.Foundation
 {
 	[TestFixture]
 	class RecordTests
