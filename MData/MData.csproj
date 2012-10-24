@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FieldMissingException.cs" />
     <Compile Include="Foundation\Database.cs" />
     <Compile Include="Foundation\Field.cs" />
     <Compile Include="Foundation\Record.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="IDatabase.cs" />
     <Compile Include="IRecordSet.cs" />
     <Compile Include="IResultSet.cs" />
+    <Compile Include="MDataException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\SqlServerCompact\SqlServerCompactCommand.cs" />
     <Compile Include="Providers\SqlServerCompact\SqlServerCompactDatabase.cs" />
@@ -75,7 +77,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"C:\Program Files (x86)\Microsoft SDKs\F#\3.0\Framework\v4.0\Fsi.exe" --lib:$(SolutionDir)Scripts --use:IncrementRevision.fsx --exec -- $(SolutionDir)</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

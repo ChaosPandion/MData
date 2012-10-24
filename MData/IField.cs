@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Dynamic;
 
 namespace MData
 {
     /// <summary>
     /// Represents a named value.
     /// </summary>
-	public interface IField : IEquatable<IField>
+	public interface IField : IEquatable<IField>, IDynamicMetaObjectProvider
     {
         /// <summary>
         /// Gets the Name of the current instance.

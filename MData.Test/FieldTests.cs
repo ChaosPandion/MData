@@ -1,7 +1,6 @@
-﻿using MData.Foundation;
-using Microsoft.CSharp.RuntimeBinder;
+﻿using System;
+using MData.Foundation;
 using NUnit.Framework;
-using System;
 
 namespace MData.Test
 {
@@ -51,7 +50,7 @@ namespace MData.Test
         public void ValueShouldDynamicallyConvertToType() { int v = (dynamic)new Field("A", typeof(int), 1); }
 
         [Test]
-        public void ShouldThrowWhenNullValueDynamicallyConvertedToNonNullableValueType() { Assert.Throws<RuntimeBinderException>(() => { int v = (dynamic)new Field("A", typeof(int), null); }); }
+        public void ShouldThrowWhenNullValueDynamicallyConvertedToNonNullableValueType() { Assert.Throws<InvalidCastException>(() => { int v = (dynamic)new Field("A", typeof(int), null); }); }
 
         [Test]
         public void ValueShouldDynamicallyConvertToNullableType() { int? v = (dynamic)new Field("A", typeof(int), 1); }

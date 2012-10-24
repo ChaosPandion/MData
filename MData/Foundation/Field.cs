@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Dynamic;
+using System.Linq.Expressions;
+using System.Globalization;
 
 namespace MData.Foundation
 {
     /// <summary>
     /// Represents a named value.
     /// </summary>
-    //[DebuggerStepThrough]
-    public sealed class Field : DynamicObject, IField
+    [DebuggerStepThrough]
+    public sealed class Field : IField
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly string _name;
@@ -31,8 +30,10 @@ namespace MData.Foundation
         /// <param name="value">The value of the field.</param>
         public Field(string name, Type type, object value)
         {
-            name.ThrowIfNull("name");
-            type.ThrowIfNull("type");
+			if (name == null)
+				throw new ArgumentNullException("name");
+			if (type == null)
+				throw new ArgumentNullException("type");
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 throw new ArgumentException("The value cannot be an instance of Nullable<T>.", "type");
             if (value != null && value.GetType() != type)
@@ -64,31 +65,6 @@ namespace MData.Foundation
         public object Value
         {
             get { return _value; }
-        }
-
-        /// <summary> 
-        /// Provides implementation for type conversion operations. Classes derived from
-        /// the System.Dynamic.DynamicObject class can override this method to specify
-        /// dynamic behavior for operations that convert an object from one type to another.
-        /// </summary>
-        /// <param name="binder">
-        /// Provides information about the conversion operation. The binder.
-        /// Type property provides the type to which the object must be converted.
-        /// </param>
-        /// <param name="result">The result of the type conversion operation.</param>
-        public override bool TryConvert(ConvertBinder binder, out object result)
-        {
-            try
-            {
-                var type = Nullable.GetUnderlyingType(binder.Type) ?? binder.Type;
-                result = Convert.ChangeType((IConvertible)Value, type);
-                return true;
-            }
-            catch
-            {
-                result = null;
-                return false;
-            }
         }
 
         /// <summary>
@@ -129,7 +105,40 @@ namespace MData.Foundation
         /// </summary>
 		public override string ToString()
 		{
-			return string.Format("{0}({1})", Name, Type);
+			return string.Format(CultureInfo.InvariantCulture, "{0}({1})", Name, Type);
+		}
+
+		DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter)
+		{
+			return new FieldDynamicMetaObject(parameter, this);
+		}
+
+		[DebuggerStepThrough]
+		sealed class FieldDynamicMetaObject : DynamicMetaObject
+		{
+			public FieldDynamicMetaObject(Expression expression, Field field)
+				: base(expression, BindingRestrictions.Empty, field)
+			{
+				if (field == null)
+					throw new ArgumentNullException("field");
+			}
+
+			public override DynamicMetaObject BindConvert(ConvertBinder binder)
+			{
+				if (binder == null)
+					throw new ArgumentNullException("binder");
+				return new DynamicMetaObject(
+					Expression.Convert(
+						Expression.Constant(
+							Convert.ChangeType(
+								((Field)Value).Value, 
+								Nullable.GetUnderlyingType(binder.Type) ?? binder.Type,
+								CultureInfo.InvariantCulture)), 
+						binder.Type),
+					BindingRestrictions.GetTypeRestriction(
+						Expression, 
+						LimitType));
+			}
 		}
 	}
 }
