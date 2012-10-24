@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.ObjectModel;
 
-namespace MData.Foundation
+namespace MData
 {
 	public class RecordSet : ReadOnlyCollection<IRecord>, IRecordSet
 	{

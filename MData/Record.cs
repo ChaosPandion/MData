@@ -6,7 +6,7 @@ using System.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace MData.Foundation
+namespace MData
 {
     /// <summary>
 	/// Represents a collection of fields.

@@ -4,4 +4,10 @@
     <assembly path="MData.Test\bin\Debug\MData.Test.exe" />
   </Config>
   <Config name="Release" binpathtype="Auto" />
+  <Config name="Debug|x86" binpathtype="Auto">
+    <assembly path="MData.Test\bin\Debug\MData.Test.exe" />
+  </Config>
+  <Config name="Release|x86" binpathtype="Auto">
+    <assembly path="MData.Test\bin\Release\MData.Test.exe" />
+  </Config>
 </NUnitProject>

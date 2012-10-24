@@ -1,5 +1,4 @@
 ﻿using System;
-using MData.Foundation;
 using NUnit.Framework;
 
 namespace MData.Test

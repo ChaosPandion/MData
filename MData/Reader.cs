@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 
-namespace MData.Foundation
+namespace MData
 {
 	public sealed class Reader : IReader
 	{

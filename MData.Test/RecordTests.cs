@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using MData.Foundation;
 using NUnit.Framework;
 
 namespace MData.Test

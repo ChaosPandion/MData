@@ -46,12 +46,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FieldMissingException.cs" />
-    <Compile Include="Foundation\Database.cs" />
-    <Compile Include="Foundation\Field.cs" />
-    <Compile Include="Foundation\Record.cs" />
+    <Compile Include="Database.cs" />
+    <Compile Include="Field.cs" />
+    <Compile Include="Record.cs" />
     <Compile Include="Databases.cs" />
-    <Compile Include="Foundation\RecordSet.cs" />
-    <Compile Include="Foundation\ResultSet.cs" />
+    <Compile Include="RecordSet.cs" />
+    <Compile Include="ResultSet.cs" />
     <Compile Include="IField.cs" />
     <Compile Include="IReader.cs" />
     <Compile Include="IRecord.cs" />
@@ -61,12 +61,8 @@
     <Compile Include="IResultSet.cs" />
     <Compile Include="MDataException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Providers\SqlServerCompact\SqlServerCompactCommand.cs" />
-    <Compile Include="Providers\SqlServerCompact\SqlServerCompactDatabase.cs" />
-    <Compile Include="Foundation\Command.cs" />
-    <Compile Include="Providers\SqlServer\SqlServerCommand.cs" />
-    <Compile Include="Providers\SqlServer\SqlServerDatabase.cs" />
-    <Compile Include="Foundation\Reader.cs" />
+    <Compile Include="Command.cs" />
+    <Compile Include="Reader.cs" />
     <Compile Include="RecordBinder.cs" />
     <Compile Include="RecordSetBinder.cs" />
     <Compile Include="Reflection.cs" />

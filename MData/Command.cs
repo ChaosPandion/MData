@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 
-namespace MData.Foundation
+namespace MData
 {
     public abstract class Command<TConnection> : DynamicObject, ICommand
         where TConnection : IDbConnection, new()

@@ -14,7 +14,7 @@ using System.Collections.ObjectModel;
 using System.Collections;
 using System.Data.Common;
 
-namespace MData.Foundation
+namespace MData
 {
 	public abstract class Database<TConnection> : IDatabase
 		where TConnection : IDbConnection, new()

@@ -5,7 +5,7 @@ using System.Dynamic;
 using System.Linq.Expressions;
 using System.Globalization;
 
-namespace MData.Foundation
+namespace MData
 {
     /// <summary>
     /// Represents a named value.
