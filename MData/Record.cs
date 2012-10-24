@@ -36,9 +36,9 @@ namespace MData
         private IRecord _nextRecord;
 
         /// <summary>
-        /// 
+        /// Constructs a new immutable instance that contains the provided results.
         /// </summary>
-        /// <param name="results"></param>
+        /// <param name="results">The results that will be included.</param>
         public Record(IEnumerable<IEnumerable<IEnumerable<IField>>> results)
         {
             if (results == null)
@@ -48,7 +48,7 @@ namespace MData
             foreach (var result in results)
             {
                 if (result == null)
-                    throw new ArgumentException("results");
+                    throw new ArgumentException("Cannot contain a null result.", "results");
                 if (resultIndex > 0)
                 {
                     r._nextResult = new Record();
@@ -58,7 +58,7 @@ namespace MData
                 foreach (var record in result)
                 {
                     if (record == null)
-                        throw new ArgumentException("results");
+                        throw new ArgumentException("Cannot contain a null record.", "results");
                     if (recordIndex > 0)
                     {
                         r._nextRecord = new Record();
@@ -67,7 +67,7 @@ namespace MData
                     foreach (var field in record)
                     {
                         if (field == null)
-                            throw new ArgumentException("field");
+                            throw new ArgumentException("Cannot contain a null field.", "results");
                         r._list.Add(field);
                         r._map.Add(field.Name, field);
                     }
@@ -85,7 +85,7 @@ namespace MData
         }
 
         /// <summary>
-        /// 
+        /// Gets the number of results within the result set.
         /// </summary>
         public int ResultCount
         {
@@ -111,7 +111,7 @@ namespace MData
         }
 
         /// <summary>
-        /// 
+        /// Gets the number of records within the record set.
         /// </summary>
         public int RecordCount
         {
@@ -133,7 +133,7 @@ namespace MData
         }
 
         /// <summary>
-        /// 
+        /// Gets the index of the result within the result set.
         /// </summary>
         public int ResultIndex
         {
@@ -141,7 +141,7 @@ namespace MData
         }
 
         /// <summary>
-        /// 
+        /// Gets the index of the record within the record set.
         /// </summary>
         public int RecordIndex
         {
@@ -149,7 +149,7 @@ namespace MData
         }
 
         /// <summary>
-        /// 
+        /// Gets the next result in the result set or null if there are no more results.
         /// </summary>
         public IRecord NextResult
         {
@@ -165,7 +165,7 @@ namespace MData
         }
 
         /// <summary>
-        /// 
+        /// Gets the next record in the record set or null if there are no more records.
         /// </summary>
         public IRecord NextRecord
         {
@@ -179,6 +179,41 @@ namespace MData
 		{
 			get { return _list.Count; }
 		}
+
+        /// <summary>
+        /// Gets a collection containing the field names.
+        /// </summary>
+        public IEnumerable<string> GetFieldNames()
+        {
+            return _list.Select(f => f.Name);
+        }
+
+        /// <summary>
+        /// Returns the name of the field with the specified <paramref name="index" />. 
+        /// </summary>
+        /// <param name="index">The index of the field.</param>
+        public string GetName(int index)
+        {
+            return GetField(index).Name;
+        }
+
+        /// <summary>
+        /// Returns the type of the field with the specified <paramref name="index" />. 
+        /// </summary>
+        /// <param name="index">The index of the field.</param>
+        public Type GetType(int index)
+        {
+            return GetField(index).Type;
+        }
+
+        /// <summary>
+        /// Returns the type of the field with the specified name.
+        /// </summary>
+        /// <param name="name">The name of the field.</param>
+        public Type GetType(string name)
+        {
+            return GetField(name).Type;
+        }
 
 		/// <summary>
 		/// Gets the value of the field at the specified index.
@@ -252,9 +287,18 @@ namespace MData
 
         [TestClass]
         [ExcludeFromCodeCoverage]
-        public sealed class Tests
+        public sealed class Tests : TestsBase
         {
-            
+
+            private static readonly Record _1RES_1REC_2FLD = 
+                new Record(
+                    new List<List<List<IField>>> { 
+                            new List<List<IField>> { 
+                                new List<IField> { 
+                                    new Field("A", typeof(int), 1), 
+                                    new Field("B", typeof(string), "X") } } });
+
+
             [TestMethod]
             [ExpectedException(typeof(ArgumentNullException))]
             public void ShouldThrowOnNullResults() 
@@ -558,6 +602,41 @@ namespace MData
                     new List<IField> { f1, f2 } } });
                 Assert.AreEqual(f1, r.A);
                 Assert.AreEqual(f2, r.B);
+            }
+
+            [TestMethod]
+            public void Method_GetName()
+            {
+                DoesThrow<FieldMissingException>(() => _1RES_1REC_2FLD.GetName(-1));
+                DoesThrow<FieldMissingException>(() => _1RES_1REC_2FLD.GetName(3));
+                Assert.AreEqual("A", _1RES_1REC_2FLD.GetName(0));
+                Assert.AreEqual("B", _1RES_1REC_2FLD.GetName(1));
+            }
+
+            [TestMethod]
+            public void Method_GetType_ByIndex()
+            {
+                DoesThrow<FieldMissingException>(() => _1RES_1REC_2FLD.GetType(-1));
+                DoesThrow<FieldMissingException>(() => _1RES_1REC_2FLD.GetType(3));
+                Assert.AreEqual(typeof(int), _1RES_1REC_2FLD.GetType(0));
+                Assert.AreEqual(typeof(string), _1RES_1REC_2FLD.GetType(1));
+            }
+
+            [TestMethod]
+            public void Method_GetType_ByName()
+            {
+                DoesThrow<ArgumentNullException>(() => _1RES_1REC_2FLD.GetType(null));
+                DoesThrow<FieldMissingException>(() => _1RES_1REC_2FLD.GetType("C"));
+                Assert.AreEqual(typeof(int), _1RES_1REC_2FLD.GetType("A"));
+                Assert.AreEqual(typeof(string), _1RES_1REC_2FLD.GetType("B"));
+            }
+
+            [TestMethod]
+            public void Method_GetFieldNames()
+            {
+                Assert.IsNotNull(_1RES_1REC_2FLD.GetFieldNames());
+                Assert.AreEqual("A", _1RES_1REC_2FLD.GetFieldNames().First());
+                Assert.AreEqual("B", _1RES_1REC_2FLD.GetFieldNames().Last());
             }
         }
     }

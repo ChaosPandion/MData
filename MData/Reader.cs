@@ -3,16 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using System.Collections;
 
 namespace MData
 {
 	public sealed class Reader : IReader
 	{
+        const int _startingIndex = -1;
         private readonly IDataReader _reader;
+        private int _recordIndex = _startingIndex;
 
         public Reader(IDataReader reader)
         {
+            if (reader == null)
+                throw new ArgumentNullException("reader");
+            if (reader.IsClosed)
+                throw new ArgumentNullException("Reader cannot be closed.", "reader");
             _reader = reader;
+        }
+
+        public int ResultIndex
+        {
+            get { return _reader.Depth; }
+        }
+
+        public int RecordIndex
+        {
+            get { return _recordIndex; }
         }
 
         public int FieldCount
@@ -22,61 +39,63 @@ namespace MData
 
         public bool ReadResult()
         {
-            return _reader.NextResult();
+            var r = _reader.NextResult();
+            if (r) _recordIndex = _startingIndex; 
+            return r;
         }
 
         public bool ReadRecord()
         {
-            return _reader.Read();
-        }
-        
-        public IField GetField(int index)
-        {
-            return new Field(
-                _reader.GetName(index),
-                _reader.GetFieldType(index), 
-                GetFieldValue<object>(index));
+            var r = _reader.Read();
+            if (r) _recordIndex++;
+            return r;
         }
 
-        public IField GetField(string name)
+        public IEnumerable<string> GetFieldNames()
         {
-            return new Field(name,
-                _reader.GetFieldType(_reader.GetOrdinal(name)),
-                GetFieldValue<object>(name));
+            for (var i = 0; i < FieldCount; i++)
+                yield return _reader.GetName(i);
         }
 
-        public T GetFieldValue<T>(int index)
+        public string GetName(int index)
+        {
+            return _reader.GetName(index);
+        }
+
+        public Type GetType(int index)
+        {
+            return _reader.GetFieldType(index);
+        }
+
+        public Type GetType(string name)
+        {
+            return _reader.GetFieldType(_reader.GetOrdinal(name));
+        }
+
+        public T GetValue<T>(int index)
         {
             if (_reader.IsDBNull(index))
                 return default(T);
             return (T)_reader.GetValue(index);
         }
 
-        public T GetFieldValue<T>(string name)
+        public T GetValue<T>(string name)
         {
-            return GetFieldValue<T>(GetFieldIndex(name));
+            var index = _reader.GetOrdinal(name);
+            if (_reader.IsDBNull(index))
+                return default(T);
+            return (T)_reader.GetValue(index);
         }
 
-        public string GetFieldName(int index)
+        public IField GetField(int index)
         {
-            return _reader.GetName(index);
+            return new Field(_reader.GetName(index), _reader.GetFieldType(index), GetValue<object>(index));
         }
 
-        public int GetFieldIndex(string name)
+        public IField GetField(string name)
         {
-            return _reader.GetOrdinal(name);
-        }
-
-        public IEnumerable<string> GetFieldNames()
-        {
-            for (int i = 0; i < _reader.FieldCount; i++)
-                yield return _reader.GetName(i);
-        }
-
-        public IEnumerable<IField> GetFields()
-        {
-            for (int i = 0; i < _reader.FieldCount; i++)
-                yield return GetField(i);
+            var index = _reader.GetOrdinal(name);
+            return new Field(_reader.GetName(index), _reader.GetFieldType(index), GetValue<object>(index));
         }
 
         public void Dispose()
@@ -84,34 +103,15 @@ namespace MData
             _reader.Dispose();
         }
 
-        #region IReader Members
-
-
-        public object GetFieldValue(int index)
+        public IEnumerator<IField> GetEnumerator()
         {
-            throw new NotImplementedException();
+            for (int i = 0; i < FieldCount; i++)
+                yield return GetField(i);
         }
 
-        public object GetFieldValue(string name)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return GetEnumerator();
         }
-
-        public Type GetFieldType(Type type)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        #region IReader Members
-
-
-        public Type GetFieldType(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
     }
 }

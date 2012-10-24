@@ -12,7 +12,7 @@ using System.Diagnostics;
 
 namespace MData
 {
-    public abstract class Command<TConnection> : DynamicObject, ICommand
+    public class Command<TConnection> : DynamicObject, ICommand
         where TConnection : IDbConnection, new()
     {
         private readonly ConcurrentDictionary<string, object> _commandParameters = new ConcurrentDictionary<string, object>();
@@ -21,23 +21,45 @@ namespace MData
         private CommandType _commandType;
         private int _commandTimeout = -1;
 
-        protected Command(Database<TConnection> db)
+        public Command(Database<TConnection> db)
         {
             _db = db;
         }
-        
+
+        protected IDatabase Database
+        {
+            get { return _db; }
+        }
+
+        protected string CommandText
+        {
+            get { return _commandText; }
+        }
+
+        protected CommandType CommandType
+        {
+            get { return _commandType; }
+        }
+
+        protected int CommandTimeout
+        {
+            get { return _commandTimeout; }
+        }
+
+        protected IDictionary<string, object> CommandParameters
+        {
+            get { return _commandParameters; }
+        }
         
         public ICommand WithText(string value)
         {
             _commandText = value;
-            _commandType = CommandType.Text;
             return this;
         }
 
-        public ICommand WithProcedure(string value)
+        public ICommand WithType(CommandType value)
         {
-            _commandText = value;
-            _commandType = CommandType.StoredProcedure;
+            _commandType = value;
             return this;
         }
 
@@ -78,25 +100,24 @@ namespace MData
             {
                 if (!reader.ReadRecord())
                     throw new Exception();
-                return reader.GetFieldValue<T>(0);
+                return reader.GetValue<T>(0);
             }
         }
 
         public virtual IRecord ExecuteResults()
         {
-            return null;
-            //using (var reader = ExecuteReader())
-            //{
-            //    var results = new List<IRecordSet>();
-            //    do
-            //    {
-            //        var records = new List<IRecord>();
-            //        while (reader.ReadRecord())
-            //            records.Add(new Record(reader.GetFields()));
-            //        results.Add(new RecordSet(records));
-            //    } while (reader.ReadResult());
-            //    return new ResultSet(results);
-            //}
+            using (var reader = ExecuteReader())
+            {
+                var results = new List<List<List<IField>>>();
+                do
+                {
+                    var records = new List<List<IField>>();
+                    while (reader.ReadRecord())
+                        records.Add(new List<IField>(reader));
+                    results.Add(records);
+                } while (reader.ReadResult());
+                return new Record(results);
+            }
         }
 
 		public virtual IReader ExecuteReader()
@@ -110,8 +131,8 @@ namespace MData
             cn.ConnectionString = _db.ConnectionString;
             var cm = cn.CreateCommand();
             cm.CommandText = _commandText;
-            cm.CommandType = _commandType;
-            if (_commandTimeout != -1)
+            cm.CommandType = (System.Data.CommandType)_commandType;
+            if (_commandTimeout > -1)
             {
                 cm.CommandTimeout = _commandTimeout;
             }
@@ -135,7 +156,8 @@ namespace MData
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            WithProcedure(_commandText != null ? _commandText + "." + binder.Name : binder.Name);
+            _commandType = CommandType.StoredProcedure;
+            WithText(_commandText != null ? _commandText + "." + binder.Name : binder.Name);
             result = this;
             return true;
         }
@@ -149,7 +171,8 @@ namespace MData
 
         public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
         {
-            WithProcedure(_commandText != null ? _commandText + "." + binder.Name : binder.Name);
+            _commandType = CommandType.StoredProcedure;
+            WithText(_commandText != null ? _commandText + "." + binder.Name : binder.Name);
             AddArgs(binder.CallInfo.ArgumentNames, args);
             result = this;
             return true;

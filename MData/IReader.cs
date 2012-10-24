@@ -5,34 +5,12 @@ using System.Text;
 
 namespace MData
 {
-    public interface IReader : IDisposable
+    public interface IReader : IDisposable, IFieldMap
     {
-        int FieldCount { get; }
+        int ResultIndex { get; }
+        int RecordIndex { get; }
 
         bool ReadResult();
-
         bool ReadRecord();
-
-        IField GetField(int index);
-
-        IField GetField(string name);
-
-        object GetFieldValue(int index);
-
-        T GetFieldValue<T>(int index);
-
-        object GetFieldValue(string name);
-
-        T GetFieldValue<T>(string name);
-
-        string GetFieldName(int index);
-
-        Type GetFieldType(int index);
-
-        int GetFieldIndex(string name);
-
-        IEnumerable<string> GetFieldNames();
-
-        IEnumerable<IField> GetFields();
     }
 }

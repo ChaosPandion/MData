@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 
 namespace MData
 {
+    [ExcludeFromCodeCoverage]
 	public class MDataException : Exception
 	{
 		public MDataException()

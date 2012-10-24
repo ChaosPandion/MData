@@ -9,7 +9,7 @@ namespace MData
     public interface ICommand
     {
         ICommand WithText(string value);
-        ICommand WithProcedure(string value);
+        ICommand WithType(CommandType value);
         ICommand WithTimeout(int value);
         ICommand WithParam<T>(string name, T value);
         ICommand WithParams(IDictionary<string, object> args);

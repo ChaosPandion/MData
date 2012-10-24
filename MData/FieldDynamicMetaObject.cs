@@ -37,7 +37,7 @@ namespace MData
 
         [TestClass]
         [ExcludeFromCodeCoverage]
-        public sealed class Tests
+        public sealed class Tests : TestsBase
         {
             private static readonly Expression _parameter = Expression.Parameter(typeof(object));
             private static readonly Field _field = new Field("A", typeof(int), 1);

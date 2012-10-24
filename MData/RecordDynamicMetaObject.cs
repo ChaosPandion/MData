@@ -14,9 +14,6 @@ namespace MData
     [DebuggerStepThrough]
     public sealed class RecordDynamicMetaObject : DynamicMetaObject
     {
-        private static readonly Type _recordType = typeof(Record);
-        private static readonly MethodInfo _getFieldMethod = _recordType.GetMethod("GetField", new[] { typeof(string) });
-
         public RecordDynamicMetaObject(Expression expression, Record record)
             : base(expression, BindingRestrictions.Empty, record)
         {
@@ -24,50 +21,56 @@ namespace MData
                 throw new ArgumentNullException("record");
         }
 
+        public override IEnumerable<string> GetDynamicMemberNames()
+        {
+            return ((IRecord)Value).Select(f => f.Name);
+        }
+
         public override DynamicMetaObject BindGetMember(GetMemberBinder binder)
         {
             if (binder == null)
                 throw new ArgumentNullException("binder");
             return new DynamicMetaObject(
-                Expression.Call(
-                    Expression.Convert(
-                        Expression,
-                        _recordType),
-                    _getFieldMethod,
-                    Expression.Constant(binder.Name)),
-                BindingRestrictions.GetTypeRestriction(
-                    Expression,
-                    LimitType),
-                Value);
+                Expression.Constant(((IRecord)Value).GetField(binder.Name)), 
+                BindingRestrictions.GetTypeRestriction(Expression, LimitType));
         }
 
         [TestClass]
         [ExcludeFromCodeCoverage]
-        public sealed class Tests
+        public sealed class Tests : TestsBase
         {
-            //private static readonly Expression _parameter = Expression.Parameter(typeof(object));
-            //private static readonly Record _record = new Record(new[] { new Field("A", typeof(int), 1) });
+            private static readonly Expression _expression = Expression.Parameter(typeof(object));
 
-            //[TestMethod]
-            //[ExpectedException(typeof(ArgumentNullException))]
-            //public void ThrowsWhenConstructedWithNullExpression()
-            //{
-            //    new RecordDynamicMetaObject(null, _record);
-            //}
+            private static readonly Record _record =
+                new Record(
+                    new List<List<List<IField>>> { 
+                            new List<List<IField>> { 
+                                new List<IField> { 
+                                    new Field("A", typeof(int), 1), 
+                                    new Field("B", typeof(string), "X") } } });
 
-            //[TestMethod]
-            //[ExpectedException(typeof(ArgumentNullException))]
-            //public void ThrowsWhenConstructedWithNullField()
-            //{
-            //    new RecordDynamicMetaObject(_parameter, null);
-            //}
+            [TestMethod]
+            public void Test_Constructors()
+            {
+                DoesThrow<ArgumentNullException>(() => new RecordDynamicMetaObject(null, _record));
+                DoesThrow<ArgumentNullException>(() => new RecordDynamicMetaObject(_expression, null));
+                new RecordDynamicMetaObject(_expression, _record);
+            }
 
-            //[TestMethod]
-            //[ExpectedException(typeof(ArgumentNullException))]
-            //public void BindGetMemberThrowsWhenConstructedWithNullField()
-            //{
-            //    new RecordDynamicMetaObject(_parameter, _record).BindGetMember(null);
-            //}
+            [TestMethod]
+            public void Test__Method_GetDynamicMemberNames()
+            {
+                var r = new RecordDynamicMetaObject(_expression, _record);
+                Assert.IsNotNull(r.GetDynamicMemberNames());
+                Assert.IsTrue(r.GetDynamicMemberNames().SequenceEqual(_record.GetFieldNames()));
+            }
+
+            [TestMethod]
+            public void Test__Method_BindGetMember()
+            {
+                var r = new RecordDynamicMetaObject(_expression, _record);
+                DoesThrow<ArgumentNullException>(() => r.BindGetMember(null));
+            }
         }
     }
 }

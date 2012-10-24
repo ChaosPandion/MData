@@ -16,12 +16,12 @@ using System.Data.Common;
 
 namespace MData
 {
-	public abstract class Database<TConnection> : IDatabase
+    public class Database<TConnection> : IDatabase
 		where TConnection : IDbConnection, new()
 	{        
         private readonly string _connectionString;
 
-        protected Database(string connectionString)
+        public Database(string connectionString)
         {
             _connectionString = connectionString;
         }
@@ -49,11 +49,14 @@ namespace MData
             return cb;
         }
 
-        protected abstract ICommand CreateCommandBuilder();
+        protected virtual ICommand CreateCommand()
+        {
+            return new Command<TConnection>(this);
+        }
 
         private ICommand GetCommand()
         {
-            var cb = CreateCommandBuilder();
+            var cb = CreateCommand();
             if (cb == null)
                 throw new Exception();
             return cb;

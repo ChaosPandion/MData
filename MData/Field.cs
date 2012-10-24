@@ -70,7 +70,7 @@ namespace MData
         }
 
         /// <summary>
-        /// Determines whether the current <see cref="MData.Foundation.Field"/> is equal to the supplied <see cref="System.Object"/>.
+        /// Determines whether the current <see cref="MData.Field"/> is equal to the supplied <see cref="System.Object"/>.
         /// </summary>
         /// <param name="obj">The object to compare.</param>
 		public override bool Equals(object obj)
@@ -79,7 +79,7 @@ namespace MData
 		}
 
         /// <summary>
-        /// Determines whether the current <see cref="MData.Foundation.Field"/> is equal to the supplied <see cref="MData.IField"/>.
+        /// Determines whether the current <see cref="MData.Field"/> is equal to the supplied <see cref="MData.IField"/>.
         /// </summary>
         /// <param name="other">The field to compare.</param>
 		public bool Equals(IField other)
@@ -118,10 +118,9 @@ namespace MData
 
         [TestClass]
         [ExcludeFromCodeCoverage]
-        public sealed class Tests
+        public sealed class Tests : TestsBase
         {
             [TestMethod]
-            [Description("XXXXXX")]
             [ExpectedException(typeof(ArgumentNullException))]
             public void ShouldThrowOnNullName() { new Field(null, typeof(int), 1); }
 
