@@ -40,6 +40,20 @@ namespace MData
             return cb;
         }
 
+        public ICommand BuildTextCommand(string text, object args = null, Func<ICommand, ICommand> configure = null)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                throw new ArgumentException("Cannot be null, empty or white space.", "text");
+            var c = GetCommand();
+            c.WithText(text);
+            c.WithType(CommandType.Text);
+            if (args != null)
+                c.WithParams(args);
+            if (configure != null)
+                c = configure(c);
+            return c;
+        }
+
         public ICommand BuildDynamicCommand(Func<dynamic, dynamic> configure)
         {
             configure.ThrowIfNull("configure");

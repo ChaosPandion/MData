@@ -6,7 +6,7 @@ namespace MData
     /// <summary>
     /// Represents a named value.
     /// </summary>
-	public interface IField : IEquatable<IField>, IDynamicMetaObjectProvider
+	public interface IField : IEquatable<IField>
     {
         /// <summary>
         /// Gets the Name of the current instance.

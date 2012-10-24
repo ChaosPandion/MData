@@ -1,16 +1,17 @@
+﻿using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("MData.Test")]
+[assembly: CLSCompliant(true)]
+[assembly: AssemblyTitle("MData.SqlCe")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MData.Test")]
+[assembly: AssemblyProduct("MData.SqlCe")]
 [assembly: AssemblyCopyright("Copyright © Matthew O'Brien 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: Guid("b510252a-ca67-4223-b066-b8e8622ce922")]
-[assembly: AssemblyVersion("1.0")]
-[assembly: AssemblyFileVersion("1.0")]
+[assembly: Guid("9b0fe316-8567-4940-a203-947f7f521fb4")]
+[assembly: AssemblyVersion("0.4.3.0")]
+[assembly: AssemblyFileVersion("0.4.3.0")]

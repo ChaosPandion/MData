@@ -30,9 +30,9 @@ namespace MData
         {
             if (binder == null)
                 throw new ArgumentNullException("binder");
-            return new DynamicMetaObject(
-                Expression.Constant(((IRecord)Value).GetField(binder.Name)), 
-                BindingRestrictions.GetTypeRestriction(Expression, LimitType));
+            var val = Expression.Convert(Expression, typeof(IFieldMap));
+            var getValue = Expression.Call(val, "GetValue", new[] { typeof(object) }, Expression.Constant(binder.Name));
+            return new DynamicMetaObject(getValue, BindingRestrictions.GetTypeRestriction(Expression, LimitType), Value);
         }
 
         [TestClass]

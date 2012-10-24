@@ -45,27 +45,27 @@ namespace MData.SQLite
             Assert.AreEqual(4, r.RecordCount);
 
             dynamic n = r;
-            Assert.AreEqual("Dan", n.FirstName.Value);
-            Assert.AreEqual("Simpson", n.LastName.Value);
-            Assert.AreEqual(21, n.Age.Value);
+            Assert.AreEqual("Dan", n.FirstName);
+            Assert.AreEqual("Simpson", n.LastName);
+            Assert.AreEqual(21, n.Age);
 
             r = r.NextRecord;
             n = r;
-            Assert.AreEqual("Matt", n.FirstName.Value);
-            Assert.AreEqual("Simpson", n.LastName.Value);
-            Assert.AreEqual(23, n.Age.Value);
+            Assert.AreEqual("Matt", n.FirstName);
+            Assert.AreEqual("Simpson", n.LastName);
+            Assert.AreEqual(23, n.Age);
 
             r = r.NextRecord;
             n = r;
-            Assert.AreEqual("Steve", n.FirstName.Value);
-            Assert.AreEqual("Thomas", n.LastName.Value);
-            Assert.AreEqual(19, n.Age.Value);
+            Assert.AreEqual("Steve", n.FirstName);
+            Assert.AreEqual("Thomas", n.LastName);
+            Assert.AreEqual(19, n.Age);
 
             r = r.NextRecord;
             n = r;
-            Assert.AreEqual("Tim", n.FirstName.Value);
-            Assert.AreEqual("Frank", n.LastName.Value);
-            Assert.AreEqual(16, n.Age.Value);
+            Assert.AreEqual("Tim", n.FirstName);
+            Assert.AreEqual("Frank", n.LastName);
+            Assert.AreEqual(16, n.Age);
         }
 
         [ClassCleanup]

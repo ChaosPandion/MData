@@ -268,6 +268,21 @@ namespace MData
 		}
 
         /// <summary>
+        /// Returns an enumerator that iterates through this result.
+        /// Iteration will start from the current record rather than 
+        /// the first record.
+        /// </summary>
+        public IEnumerable<IRecord> EnumerateRecords()
+        {
+            var r = (IRecord)this;
+            do
+            {
+                yield return r;
+                r = r.NextRecord;
+            } while (r != null);
+        }
+
+        /// <summary>
         /// Returns an enumerator that iterates through this record.
         /// </summary>
         public IEnumerator<IField> GetEnumerator()
@@ -600,8 +615,8 @@ namespace MData
                 var f2 = new Field("B", typeof(int), 2);
                 dynamic r = (IRecord)new Record(new List<List<List<IField>>> { new List<List<IField>> { 
                     new List<IField> { f1, f2 } } });
-                Assert.AreEqual(f1, r.A);
-                Assert.AreEqual(f2, r.B);
+                Assert.AreEqual(f1.Value, r.A);
+                Assert.AreEqual(f2.Value, r.B);
             }
 
             [TestMethod]

@@ -50,7 +50,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandType.cs" />
-    <Compile Include="FieldDynamicMetaObject.cs" />
     <Compile Include="FieldMissingException.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="Field.cs" />

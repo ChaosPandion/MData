@@ -39,6 +39,11 @@ namespace MData
         /// </summary>
         IRecord NextRecord { get; }
 
-
+        /// <summary>
+        /// Returns an enumerator that iterates through this result.
+        /// Iteration will start from the current record rather than 
+        /// the first record.
+        /// </summary>
+        IEnumerable<IRecord> EnumerateRecords();
     }
 }

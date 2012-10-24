@@ -110,11 +110,6 @@ namespace MData
 			return string.Format(CultureInfo.InvariantCulture, "{0}({1})", Name, Type);
 		}
 
-		DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter)
-		{
-			return new FieldDynamicMetaObject(parameter, this);
-		}
-
 
         [TestClass]
         [ExcludeFromCodeCoverage]
@@ -162,23 +157,7 @@ namespace MData
 
             [TestMethod]
             public void ValueShouldMatchAfterConstruction() { Assert.AreEqual(new Field("A", typeof(int), 1).Value, 1); }
-
-            [TestMethod]
-            public void ValueShouldDynamicallyConvertToType() { int v = (dynamic)new Field("A", typeof(int), 1); }
-
-            [TestMethod]
-            [ExpectedException(typeof(InvalidCastException))]
-            public void ShouldThrowWhenNullValueDynamicallyConvertedToNonNullableValueType() { int v = (dynamic)new Field("A", typeof(int), null); }
-
-            [TestMethod]
-            public void ValueShouldDynamicallyConvertToNullableType() { int? v = (dynamic)new Field("A", typeof(int), 1); }
-
-            [TestMethod]
-            public void PrimitiveValueShouldDynamicallyConvertToOtherPrimitiveTypes() { decimal v = (dynamic)new Field("A", typeof(int), 1); }
-
-            [TestMethod]
-            public void PrimitiveValueShouldDynamicallyConvertToOtherPrimitiveNullableTypes() { decimal? v = (dynamic)new Field("A", typeof(int), 1); }
-
+            
             [TestMethod]
             public void DistinctFieldObjectsWithIdenticalValuesShouldBeEqual() { Assert.AreEqual(new Field("A", typeof(int), 1), new Field("A", typeof(int), 1)); }
 
@@ -196,31 +175,6 @@ namespace MData
                 var f1 = new Field("A", typeof(int), 1);
                 var f2 = new Field("A", typeof(int), 1);
                 Assert.AreEqual(f1.GetHashCode(), f2.GetHashCode());
-            }
-
-            [TestMethod]
-            [ExpectedException(typeof(ArgumentNullException))]
-            public void GetMetaObjectThrowsWhenPassedNull() { ((IDynamicMetaObjectProvider)new Field("A", typeof(int), 1)).GetMetaObject(null); }
-
-            [TestMethod]
-            [ExpectedException(typeof(ArgumentNullException))]
-            public void BindConvertThrowsWhenPassedNull()
-            {
-                var f = new Field("A", typeof(int), 1);
-                var p = (IDynamicMetaObjectProvider)f;
-                var m = p.GetMetaObject(Expression.Parameter(typeof(object)));
-                var r = m.BindConvert(null);
-            }
-
-            [TestMethod]
-            public void BindConvertReturnsCorrectType()
-            {
-                var f = new Field("A", typeof(int), 1);
-                var p = (IDynamicMetaObjectProvider)f;
-                var param = Expression.Parameter(typeof(object));
-                var m = p.GetMetaObject(param);
-                var func = Expression.Lambda<Func<object, IField>>(Expression.Convert(m.Expression, typeof(IField)), param).Compile();
-                Assert.AreEqual(f, func(f));
             }
         }
 	}
