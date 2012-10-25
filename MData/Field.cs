@@ -4,7 +4,6 @@ using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.Linq.Expressions;
 using System.Globalization;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics.CodeAnalysis;
 
 namespace MData
@@ -109,73 +108,5 @@ namespace MData
 		{
 			return string.Format(CultureInfo.InvariantCulture, "{0}({1})", Name, Type);
 		}
-
-
-        [TestClass]
-        [ExcludeFromCodeCoverage]
-        public sealed class Tests : TestsBase
-        {
-            [TestMethod]
-            [ExpectedException(typeof(ArgumentNullException))]
-            public void ShouldThrowOnNullName() { new Field(null, typeof(int), 1); }
-
-            [TestMethod]
-            [ExpectedException(typeof(ArgumentNullException))]
-            public void ShouldThrowOnNullType() { new Field("A", null, 1); }
-
-            [TestMethod]
-            [ExpectedException(typeof(ArgumentException))]
-            public void ShouldThrowWhenTypeDoesNotMatchValue() { new Field("A", typeof(string), 1); }
-
-            [TestMethod]
-            [ExpectedException(typeof(ArgumentException))]
-            public void ShouldThrowWhenTypeIsNullableStruct() { new Field("A", typeof(int?), 1); }
-
-            [TestMethod]
-            public void ShouldNotThrowWhenValueIsNullableAndTypeIsUnderlyingType() { new Field("A", typeof(int), (int?)1); }
-
-            [TestMethod]
-            public void ShouldNotThrowWhenValueIsNullAndTypeIsNotNullable() { new Field("A", typeof(int), null); }
-
-            [TestMethod]
-            public void NameShouldNotBeNullAfterConstruction() { Assert.IsNotNull(new Field("A", typeof(int), 1).Name); }
-
-            [TestMethod]
-            public void TypeShouldNotBeNullAfterConstruction() { Assert.IsNotNull(new Field("A", typeof(int), 1).Type); }
-
-            [TestMethod]
-            public void ValueShouldNotBeNullAfterConstructionWhenPassedANonNullValue() { Assert.IsNotNull(new Field("A", typeof(int), 1).Value); }
-
-            [TestMethod]
-            public void ValueShouldBeNullAfterConstructionWhenPassedANullValue() { Assert.IsNull(new Field("A", typeof(int), null).Value); }
-
-            [TestMethod]
-            public void NameShouldMatchAfterConstruction() { Assert.AreEqual(new Field("A", typeof(int), 1).Name, "A"); }
-
-            [TestMethod]
-            public void TypeShouldMatchAfterConstruction() { Assert.AreEqual(new Field("A", typeof(int), 1).Type, typeof(int)); }
-
-            [TestMethod]
-            public void ValueShouldMatchAfterConstruction() { Assert.AreEqual(new Field("A", typeof(int), 1).Value, 1); }
-            
-            [TestMethod]
-            public void DistinctFieldObjectsWithIdenticalValuesShouldBeEqual() { Assert.AreEqual(new Field("A", typeof(int), 1), new Field("A", typeof(int), 1)); }
-
-            [TestMethod]
-            public void ToStringIsTheSameForEqualFields()
-            {
-                var f1 = new Field("A", typeof(int), 1);
-                var f2 = new Field("A", typeof(int), 1);
-                Assert.AreEqual(f1.ToString(), f2.ToString());
-            }
-
-            [TestMethod]
-            public void GetHashCodeIsTheSameForEqualFields()
-            {
-                var f1 = new Field("A", typeof(int), 1);
-                var f2 = new Field("A", typeof(int), 1);
-                Assert.AreEqual(f1.GetHashCode(), f2.GetHashCode());
-            }
-        }
 	}
 }

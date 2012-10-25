@@ -4,16 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EA1AF366-6DBE-4BDE-91CF-923D03B44561}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{96374B11-DB8F-4C30-A5E4-954F9F0541CE}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MData.SQLite</RootNamespace>
-    <AssemblyName>MData.SQLite</AssemblyName>
+    <RootNamespace>MData.Tests</RootNamespace>
+    <AssemblyName>MData.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -47,19 +49,18 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\x86\Release\MData.SQLite.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.mocks, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NUnit.Mocks.2.6.2\lib\nunit.mocks.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.82.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Data.SQLite.1.0.82.0\lib\net40\System.Data.SQLite.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Data.SQLite.Linq, Version=1.0.82.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Data.SQLite.1.0.82.0\lib\net40\System.Data.SQLite.Linq.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -67,33 +68,37 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FieldTests.cs" />
+    <Compile Include="Models\Color.cs" />
+    <Compile Include="Models\Person.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SQLiteCommand.cs" />
-    <Compile Include="SQLiteDatabase.cs" />
+    <Compile Include="RecordTests.cs" />
+    <Compile Include="ColorTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MData.SqlCe\MData.SqlCe.csproj">
+      <Project>{4a9d66da-ba88-4d72-85fd-9e2e9c1de71c}</Project>
+      <Name>MData.SqlCe</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MData.SQLite\MData.SQLite.csproj">
+      <Project>{ea1af366-6dbe-4bde-91cf-923d03b44561}</Project>
+      <Name>MData.SQLite</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MData\MData.csproj">
       <Project>{57d5c0ed-479e-4b81-8135-fa1c045cb81b}</Project>
       <Name>MData</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="x64\SQLite.Interop.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="x86\SQLite.Interop.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    if not exist "$(TargetDir)x86" md "$(TargetDir)x86"
-    xcopy /s /y "$(SolutionDir)packages\System.Data.SQLite.1.0.82.0\content\net40\x86\*.*" "$(TargetDir)x86"
-    if not exist "$(TargetDir)x64" md "$(TargetDir)x64"
-    xcopy /s /y "$(SolutionDir)packages\System.Data.SQLite.1.0.82.0\content\net40\x64\*.*" "$(TargetDir)x64"</PostBuildEvent>
-  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
 </Project>

@@ -37,8 +37,17 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <Optimize>true</Optimize>
+    <DocumentationFile>bin\x86\Release\MData.xml</DocumentationFile>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -56,7 +65,6 @@
     <Compile Include="IFieldMap.cs" />
     <Compile Include="Record.cs" />
     <Compile Include="Databases.cs" />
-    <Compile Include="RecordDynamicMetaObject.cs" />
     <Compile Include="IField.cs" />
     <Compile Include="IReader.cs" />
     <Compile Include="IRecord.cs" />
@@ -66,9 +74,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Reader.cs" />
-    <Compile Include="RecordBinder.cs" />
     <Compile Include="Reflection.cs" />
-    <Compile Include="TestsBase.cs" />
     <Compile Include="Validation.cs" />
   </ItemGroup>
   <ItemGroup>
